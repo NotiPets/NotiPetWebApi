@@ -1,3 +1,5 @@
 build:
   docker:
     web: Notipet.Web/Dockerfile
+run:
+  web: docker build -f .\Dockerfile -t notipetweb C:\Users\kevin\Projects\Notipet\
