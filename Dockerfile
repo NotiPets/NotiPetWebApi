@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY . .
 #COPY ["Notipet.Web/Notipet.Web.csproj", "Notipet.Web/"]
-RUN dotnet restore ". Notipet.Web/Notipet.Web.csproj"
+RUN dotnet restore "Notipet.Web/Notipet.Web.csproj"
 COPY . .
 WORKDIR "/src/Notipet.Web"
 RUN dotnet build "Notipet.Web.csproj" -c Release -o /app/build
