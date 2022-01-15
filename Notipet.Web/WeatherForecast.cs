@@ -1,4 +1,4 @@
-namespace Notipet.Web;
+﻿namespace Notipet.Web;
 
 public class WeatherForecast
 {

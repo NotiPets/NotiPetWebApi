@@ -1,4 +1,4 @@
-namespace Notipet.Web.Controllers;
+﻿namespace Notipet.Web.Controllers;
 
 [ApiController]
 [Route("[controller]")]
