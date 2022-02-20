@@ -24,6 +24,7 @@ namespace Notipet.Domain
         public string Name { get; set; }
 
         //Pretty much useless, just to follow EF core conventions and create the Foreign Key
+        [ForeignKey("PetType")]
         public ICollection<Pet> Pets { get; set; }
     }
 }

@@ -15,13 +15,14 @@ namespace Notipet.Domain
     // This class just exists to create an equivalent table to the above enum
     public class DocumentType
     {
-        public DocumentTypeId Id { get; set;}
+        public DocumentTypeId Id { get; set; }
 
         [Required]
         [StringLength(10)]
-        public string Name { get; set;}
+        public string Name { get; set; }
 
         //Pretty much useless, just to follow EF core conventions and create the Foreign Key
-        public ICollection<User> Users { get; set;}
+        [ForeignKey("DocumentType")]
+        public ICollection<User> Users { get; set; }
     }
 }
