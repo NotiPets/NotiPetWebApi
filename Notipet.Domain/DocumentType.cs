@@ -19,10 +19,10 @@ namespace Notipet.Domain
 
         [Required]
         [StringLength(10)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         //Pretty much useless, just to follow EF core conventions and create the Foreign Key
         [ForeignKey("DocumentType")]
-        public ICollection<User> Users { get; set; }
+        public ICollection<User>? Users { get; set; }
     }
 }

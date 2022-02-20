@@ -12,11 +12,11 @@ namespace Notipet.Domain
 
         [Required]
         [Column("PetId")]
-        public Pet Pet { get; set; }
+        public Pet? Pet { get; set; }
 
         [Required]
         [Column("AssetsServicesId")]
-        public AssetsServices AssetsServices { get; set; }
+        public AssetsServices? AssetsServices { get; set; }
 
         [Required]
         [Column("AppointmentStatusId")]

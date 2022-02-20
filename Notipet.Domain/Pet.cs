@@ -12,7 +12,7 @@ namespace Notipet.Domain
 
         [Required]
         [StringLength(20)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Required]
         [Column("PetTypeId")]
@@ -20,14 +20,14 @@ namespace Notipet.Domain
 
         [Required]
         [Column("UserRoleId")]
-        public UserRole UserRole { get; set; }
+        public UserRole? UserRole { get; set; }
         public bool Active { get; set; } = true;
 
         [StringLength(2048)]
-        public string PictureUrl { get; set; }
+        public string? PictureUrl { get; set; }
 
         [StringLength(100)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public DateOnly Birthdate { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;

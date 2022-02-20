@@ -12,11 +12,11 @@ namespace Notipet.Domain
 
         [Required]
         [Column("UserRoleId")]
-        public UserRole UserRole { get; set; }
+        public UserRole? UserRole { get; set; }
 
         [Required]
         [Column("AssetsServicesId")]
-        public AssetsServices AssetsServices { get; set; }
+        public AssetsServices? AssetsServices { get; set; }
 
         [Required]
         public int RatingNumber { get; set; }

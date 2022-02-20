@@ -12,19 +12,19 @@ namespace Notipet.Domain
 
         [Required]
         [Column("PetId")]
-        public Pet Pet { get; set; }
+        public Pet? Pet { get; set; }
 
         [Required]
         [Column("BusinessId")]
-        public Business Business { get; set; }
+        public Business? Business { get; set; }
 
         [Required]
         [Column("UserRoleId")]
-        public UserRole UserRole { get; set; }
+        public UserRole? UserRole { get; set; }
 
         [Required]
         [StringLength(30)]
-        public string VaccineName { get; set; }
+        public string? VaccineName { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
 
     }

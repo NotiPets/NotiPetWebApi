@@ -17,10 +17,10 @@ namespace Notipet.Domain
 
         [Required]
         [StringLength(10)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         //Pretty much useless, just to follow EF core conventions and create the Foreign Key
         [ForeignKey("AssetsServiceType")]
-        public ICollection<AssetsServices> AssetsServices { get; set; }
+        public ICollection<AssetsServices>? AssetsServices { get; set; }
     }
 }
