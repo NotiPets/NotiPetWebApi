@@ -22,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Notipet.Domain\Notipet.Domain.csproj" />
+	  <ProjectReference Include="..\Notipet.Data\Notipet.Data.csproj" />
 	</ItemGroup>
 
 </Project>
