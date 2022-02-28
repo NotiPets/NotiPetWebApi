@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Notipet.Domain
 {
-    public  class Vaccine
+    public class Vaccine
     {
         public Guid Id { get; set; }
 
