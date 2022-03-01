@@ -71,6 +71,7 @@ namespace Notipet.Web.Controllers
                 });
                 return Problem(responsemodel.ToString());
             }*/
+            login.password = Login.ComputeSha256Hash(login.password);
 
             search1 = await _context.UserRoles
                 .FirstOrDefaultAsync(m => m.Username == login.username);
