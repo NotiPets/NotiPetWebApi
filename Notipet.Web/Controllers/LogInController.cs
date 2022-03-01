@@ -61,7 +61,7 @@ namespace Notipet.Web.Controllers
                 search2 = await _context.UserRoles
                     .FirstOrDefaultAsync(m => m.Username == login.username && m.Password == login.password);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 var responsemodel = (new ResponseModel
                 {
