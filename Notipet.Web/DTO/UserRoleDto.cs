@@ -4,9 +4,9 @@ namespace Notipet.Web.DTO
 {
     public class UserRoleDto
     {
-        public UserDto User { get; set; }
+        public UserDto? User { get; set; }
         public RoleId Role { get; set; }
-        public BusinessDto Business { get; set; }
+        public BusinessDto? Business { get; set; }
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
