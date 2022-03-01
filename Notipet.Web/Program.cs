@@ -40,7 +40,6 @@ else
 var app = builder.Build();
 
 app.UseCors(x => x.AllowAnyMethod()
-                  .AllowAnyOrigin()
                   .AllowAnyHeader()
                   .SetIsOriginAllowed(origin => true)
                   .AllowCredentials());
