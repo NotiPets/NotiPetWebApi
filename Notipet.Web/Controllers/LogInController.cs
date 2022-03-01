@@ -71,13 +71,13 @@ namespace Notipet.Web.Controllers
                 });
                 return Problem(responsemodel.ToString());
             }*/
-            
+
             search1 = await _context.UserRoles
                 .FirstOrDefaultAsync(m => m.Username == login.username);
 
             search2 = await _context.UserRoles
                 .FirstOrDefaultAsync(m => m.Username == login.username && m.Password == login.password);
-            
+
 
             //Login user not found
 
