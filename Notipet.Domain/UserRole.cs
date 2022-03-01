@@ -23,6 +23,7 @@ namespace Notipet.Domain
         public Business? Business { get; set; }
 
         public bool Active { get; set; } = true;
+        public bool Validated { get; set; } = false;
 
         [Required]
         [StringLength(30)]

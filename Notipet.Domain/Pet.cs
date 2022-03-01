@@ -29,7 +29,7 @@ namespace Notipet.Domain
         [StringLength(100)]
         public string? Description { get; set; }
 
-        public DateOnly Birthdate { get; set; }
+        public DateTime Birthdate { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime? Updated { get; set; } = DateTime.Now;
     }
