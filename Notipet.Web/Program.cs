@@ -29,7 +29,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
+if (Environment.GetEnvironmentVariable("NOTIPET_DB") != null)
+{
+    var fooVariable = Environment.GetEnvironmentVariable("NOTIPET_DB").ToString();
+    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(fooVariable));
+}
+else
+    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 var app = builder.Build();
 
