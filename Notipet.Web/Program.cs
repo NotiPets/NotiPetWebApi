@@ -35,7 +35,7 @@ if (Environment.GetEnvironmentVariable("NOTIPET_DB") != null)
     builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(fooVariable));
 }
 else
-builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
+    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 var app = builder.Build();
 
