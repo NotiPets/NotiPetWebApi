@@ -1,8 +1,12 @@
 ﻿#nullable disable
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Notipet.Data;
-using System.Security.Claims;
 using Notipet.Domain;
-using System.Dynamic;
-using System.Net;
-using System.Security.Cryptography;
 
 namespace Notipet.Web.Controllers
 {
@@ -55,13 +55,12 @@ namespace Notipet.Web.Controllers
                 //Pass to hash
                 login.password = Login.ComputeSha256Hash(login.password);
 
-
                 search1 = await _context.UserRoles
                     .FirstOrDefaultAsync(m => m.Username == login.username);
 
                 search2 = await _context.UserRoles
                     .FirstOrDefaultAsync(m => m.Username == login.username && m.Password == login.password);
-        }
+            }
             catch (Exception)
             {
                 var responsemodel = (new ResponseModel
@@ -71,7 +70,7 @@ namespace Notipet.Web.Controllers
                     message = "INTERNAL_ERROR"
                 });
                 return Problem(responsemodel.ToString());
-    }
+            }
 
             //Login user not found
 
@@ -97,7 +96,7 @@ namespace Notipet.Web.Controllers
                 });
                 return NotFound(responsemodel);
             }
-         
+
 
             //Token generator
             var claims = new[]
