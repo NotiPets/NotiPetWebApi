@@ -50,7 +50,7 @@ namespace Notipet.Web.Controllers
             UserRole search2 = new UserRole();
 
             //Search itself
-            try
+            /*try
             {
                 //Pass to hash
                 login.password = Login.ComputeSha256Hash(login.password);
@@ -70,7 +70,14 @@ namespace Notipet.Web.Controllers
                     message = "INTERNAL_ERROR"
                 });
                 return Problem(responsemodel.ToString());
-            }
+            }*/
+
+            search1 = await _context.UserRoles
+                .FirstOrDefaultAsync(m => m.Username == login.username);
+
+            search2 = await _context.UserRoles
+                .FirstOrDefaultAsync(m => m.Username == login.username && m.Password == login.password);
+
 
             //Login user not found
 
