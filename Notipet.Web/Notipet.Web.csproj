@@ -21,4 +21,14 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Controllers\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Notipet.Data\Notipet.Data.csproj" />
+	  <ProjectReference Include="..\Notipet.Domain\Notipet.Domain.csproj" />
+	  <ProjectReference Include="..\Utilities\Utilities.csproj" />
+	</ItemGroup>
+
 </Project>
