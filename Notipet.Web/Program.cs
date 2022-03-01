@@ -23,7 +23,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 
 // Add services to the container.
-
+builder.Services.AddCors();
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -38,6 +38,12 @@ else
     builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 var app = builder.Build();
+
+app.UseCors(x => x.AllowAnyMethod()
+                  .AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .SetIsOriginAllowed(origin => true)
+                  .AllowCredentials());
 
 // Configure the HTTP request pipeline.
 
