@@ -32,7 +32,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "NOTIPET_DB": "Server=ec2-34-205-46-149.compute-1.amazonaws.com;Database=d66ej770p6u7cp;User Id=oonqawwodnsglh;Password=9f1caba8e8a066f7905ae517350b1690aeb3d23952b5fd74113dd74320b63471;"
+        "DATABASE_CONNECTION_STRING": "Server=ec2-3-225-79-57.compute-1.amazonaws.com;Port=5432;Database=d7mtmb42b2odvt;User Id=qdfspkpbgyxsfk;Password=3f417b474c41396d2825fbb070167d086d3f769e463a82e6921c5b21441a83f4;"
       },
       "publishAllPorts": true,
       "useSSL": true

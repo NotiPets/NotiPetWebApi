@@ -29,15 +29,20 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-if (Environment.GetEnvironmentVariable("NOTIPET_DB") != null)
+
+if (Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING") != null)
 {
-    var fooVariable = Environment.GetEnvironmentVariable("NOTIPET_DB").ToString();
-    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(fooVariable));
+    var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING").ToString();
+    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(connectionString));
 }
 else
-    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
+{
+    throw new Exception("No connection string");
+}
 
 var app = builder.Build();
+
+app.MapGet("/", () => "All working!");
 
 app.UseCors(x => x.AllowAnyMethod()
                   .AllowAnyHeader()
