@@ -1,0 +1,41 @@
+name: WR dev .NET
+
+on:
+  push:
+    branches: 
+    - 'wr/feature/**'
+    
+  pull_request:
+    branches: [ main ]
+
+env:
+  HEROKU_API_KEY: ${{ secrets.WR_DEV_HEROKU_API_KEY }}
+  APP_NAME: ${{ 'notipet-wr-dev' }}
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Install dotnet format
+      run: dotnet tool update --global dotnet-format
+    - name: Run dotnet format
+      run: dotnet-format --check --verbosity diagnostic
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Docker build
+      run: docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+    - name: Publish
+      run: |
+        heroku container:push web -a $APP_NAME
+        heroku container:release web -a $APP_NAME
