@@ -12,6 +12,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: notipet-wr-dev
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -28,11 +29,6 @@ jobs:
       run: dotnet-format --check --verbosity diagnostic
     - name: Test
       run: dotnet test --no-build --verbosity normal
-  
-  deployment:
-    runs-on: ubuntu-latest
-    environment: notipet-wr-dev
-    steps:
     - name: Docker build
       run: docker login -u=_ -p=$HEROKU_API_KEY registry.heroku.com
     - name: Publish
