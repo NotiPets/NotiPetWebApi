@@ -42,7 +42,7 @@ else
 
 var app = builder.Build();
 
-app.MapGet("/", () => "All working WR 1!");
+app.MapGet("/", () => "All working!");
 
 app.UseCors(x => x.AllowAnyMethod()
                   .AllowAnyHeader()
