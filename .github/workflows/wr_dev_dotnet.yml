@@ -5,9 +5,6 @@ on:
     branches: 
     - 'wr/feature/**'
 
-  pull_request:
-    branches: [ main ]
-
 env:
   HEROKU_API_KEY: ${{ secrets.WR_DEV_HEROKU_API_KEY }}
   APP_NAME: ${{ secrets.APP_NAME }}
@@ -37,7 +34,7 @@ jobs:
     environment: notipet-wr-dev
     steps:
     - name: Docker build
-      run: docker login --username=_ --password-stdin=$HEROKU_API_KEY registry.heroku.com
+      run: docker login -u=_ -p=$HEROKU_API_KEY registry.heroku.com
     - name: Publish
       run: |
         heroku container:push web -a $APP_NAME
