@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Notipet.Domain;
+using Utilities;
 
 namespace Notipet.Data
 {
@@ -14,9 +15,8 @@ namespace Notipet.Data
     {
         public NotiPetBdContext CreateDbContext(string[] args)
         {
-            IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(@Directory.GetCurrentDirectory() + "/../Notipet.Web/appsettings.json").Build();
+            var connectionString = Methods.GetConnectionString();
             var builder = new DbContextOptionsBuilder<NotiPetBdContext>();
-            var connectionString = configuration.GetConnectionString("DatabaseConnection");
             builder.UseNpgsql(connectionString);
             return new NotiPetBdContext(builder.Options);
         }

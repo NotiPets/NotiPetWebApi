@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Notipet.Data;
+using Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,15 +31,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-if (Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING") != null)
-{
-    var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING").ToString();
-    builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(connectionString));
-}
-else
-{
-    throw new Exception("No connection string");
-}
+var connectionString = Methods.GetConnectionString();
+builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 

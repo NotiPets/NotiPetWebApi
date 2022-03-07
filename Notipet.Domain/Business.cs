@@ -40,5 +40,8 @@ namespace Notipet.Domain
         [Required]
         [StringLength(25)]
         public string? Province { get; set; }
+
+        [StringLength(2048)]
+        public string? PictureUrl { get; set; }
     }
 }

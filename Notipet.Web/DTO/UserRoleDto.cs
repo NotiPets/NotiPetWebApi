@@ -6,7 +6,7 @@ namespace Notipet.Web.DTO
     {
         public UserDto? User { get; set; }
         public RoleId Role { get; set; }
-        public BusinessDto? Business { get; set; }
+        public Guid BusinessId { get; set; }
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
@@ -18,7 +18,7 @@ namespace Notipet.Web.DTO
                 Id = new Guid(),
                 User = User.CovertToType(),
                 Role = Role,
-                Business = Business.ConvertToType(),
+                BusinessId = BusinessId,
                 Username = Username,
                 Password = Password,
                 Email = Email,
