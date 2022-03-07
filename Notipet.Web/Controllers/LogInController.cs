@@ -36,7 +36,10 @@ namespace Notipet.Web.Controllers
         public async Task<ActionResult<UserRole>> LogIn(LoginDto login)
         {
             login.Password = Methods.ComputeSha256Hash(login.Password);
-            var userRole = await _context.UserRoles.Where(x => x.Username == login.Username && x.Password == login.Password).FirstOrDefaultAsync();
+            var userRole = await _context.UserRoles.Where(x => x.Username == login.Username && x.Password == login.Password)
+                .Include(x => x.User)
+                .Include(x => x.Business)
+                .FirstOrDefaultAsync();
             if (userRole != null)
             {
                 return Ok(new JsendSuccess(new
