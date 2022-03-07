@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Notipet.Web.Controllers
 {
-    [ApiController]
     public abstract class JwtBaseController : ControllerBase
     {
         protected IConfiguration _configuration;
