@@ -33,24 +33,28 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserRole>> LogIn(LoginDto login)
+        public async Task<ActionResult<LoginResponseDto>> LogIn(LoginDto login)
         {
             login.Password = Methods.ComputeSha256Hash(login.Password);
-            var userRole = await _context.UserRoles.Where(x => x.Username == login.Username && x.Password == login.Password)
-                .Include(x => x.User)
-                .FirstOrDefaultAsync();
-            if (userRole != null)
+            UserRole search = new UserRole();
+
+            search = await _context.UserRoles
+                .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
+
+            if (search == null)
             {
-                userRole.Business = _context.Businesses.Where(x => x.Id == userRole.BusinessId).First();
-                return Ok(new JsendSuccess(new
-                {
-                    jwt = GenerateJwtToken(userRole.Username),
-                    userRole = userRole
-                }));
+                return Unauthorized(new JsendFail(new { credentials = login.Password.ToString() }));
             }
             else
             {
-                return Unauthorized(new JsendFail(new { credentials = "Invalid credentials" }));
+                var data = (new LoginResponseDto
+                {
+                    Token = GenerateJwtToken(search.Username),
+                    Username = search.Username,
+                    Email = search.Email,
+                    BusinessId = search.BusinessId.ToString()
+                });
+                return Ok(new JsendSuccess(data));
             }
         }
     }
