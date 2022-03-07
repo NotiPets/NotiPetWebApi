@@ -31,7 +31,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var connectionString = Methods.GetConnectionString();
+string connectionString = String.Empty;
+
+// Check if exists the local secret (so probably dealing with dev)
+if (builder.Configuration["DATABASE_CONNECTION_STRING"] != null)
+{
+    connectionString = builder.Configuration["DATABASE_CONNECTION_STRING"];
+}
+// else, go get it from an environment variable (so probably production)
+else
+{
+    connectionString = Methods.GetConnectionString();
+}
 
 using (var context = new NotiPetBdContext(new DbContextOptionsBuilder<NotiPetBdContext>().UseNpgsql(connectionString).Options))
 {
