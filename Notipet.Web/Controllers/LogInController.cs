@@ -38,10 +38,10 @@ namespace Notipet.Web.Controllers
             login.Password = Methods.ComputeSha256Hash(login.Password);
             var userRole = await _context.UserRoles.Where(x => x.Username == login.Username && x.Password == login.Password)
                 .Include(x => x.User)
-                .Include(x => x.Business)
                 .FirstOrDefaultAsync();
             if (userRole != null)
             {
+                userRole.Business = _context.Businesses.Where(x => x.Id == userRole.BusinessId).First();
                 return Ok(new JsendSuccess(new
                 {
                     jwt = GenerateJwtToken(userRole.Username),
