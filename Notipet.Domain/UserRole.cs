@@ -18,8 +18,10 @@ namespace Notipet.Domain
         [Required]
         public RoleId Role { get; set; }
 
-        [Column("BusinessId")]
         [Required]
+        public Guid BusinessId { get; set; }
+
+        [NotMapped]
         public Business? Business { get; set; }
 
         public bool Active { get; set; } = true;
