@@ -1,4 +1,6 @@
-﻿namespace Notipet.Web.DTO
+﻿using Notipet.Domain;
+
+namespace Notipet.Web.DTO
 {
     public class LoginDto
     {
@@ -12,6 +14,6 @@
         public string? Email { get; set; }
         public string? Username { get; set; }
         public string? BusinessId { get; set; }
-
+        public User? User {get;set;}
     }
 }
