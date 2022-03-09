@@ -43,7 +43,7 @@ namespace Notipet.Web.Controllers
 
             if (search == null)
             {
-                return Unauthorized(new JsendFail(new { credentials = login.Password.ToString() }));
+                return Unauthorized(new JsendFail(new { credentials = "INVALID_CREDENTIALS" }));
             }
             else
             {
