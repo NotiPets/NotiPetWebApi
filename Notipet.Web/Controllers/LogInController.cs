@@ -39,22 +39,24 @@ namespace Notipet.Web.Controllers
             UserRole search = new UserRole();
 
             search = await _context.UserRoles
+                .Include(x => x.User)
                 .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
 
-            if (search == null)
-            {
-                return Unauthorized(new JsendFail(new { credentials = login.Password.ToString() }));
-            }
-            else
+            if (search != null)
             {
                 var data = (new LoginResponseDto
                 {
                     Token = GenerateJwtToken(search.Username),
                     Username = search.Username,
                     Email = search.Email,
-                    BusinessId = search.BusinessId.ToString()
+                    BusinessId = search.BusinessId.ToString(),
+                    User = search.User
                 });
                 return Ok(new JsendSuccess(data));
+            }
+            else
+            {
+                return Unauthorized(new JsendFail(new { credentials = "Invalid credentials" }));
             }
         }
     }
