@@ -14,6 +14,6 @@ namespace Notipet.Web.DTO
         public string? Email { get; set; }
         public string? Username { get; set; }
         public string? BusinessId { get; set; }
-        public User? User {get;set;}
+        public User? User { get; set; }
     }
 }
