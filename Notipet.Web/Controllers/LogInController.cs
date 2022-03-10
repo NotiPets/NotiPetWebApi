@@ -39,6 +39,7 @@ namespace Notipet.Web.Controllers
             UserRole search = new UserRole();
 
             search = await _context.UserRoles
+                .Include(x => x.User)
                 .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
 
             if (search != null)
