@@ -19,6 +19,13 @@ namespace Notipet.Domain
         public AssetsServices? AssetsServices { get; set; }
 
         [Required]
+        [Column("SpecialistId")]
+        public User? Specialist { get; set; }
+
+        [StringLength(300)]
+        public string Description { get; set; }
+
+        [Required]
         [Column("AppointmentStatusId")]
         public AppointmentStatusId AppointmentStatus { get; set; }
         public bool IsEmergency { get; set; } = false;

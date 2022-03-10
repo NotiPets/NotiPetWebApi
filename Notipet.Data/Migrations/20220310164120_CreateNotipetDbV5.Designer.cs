@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Notipet.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Notipet.Data.Migrations
 {
     [DbContext(typeof(NotiPetBdContext))]
-    partial class NotiPetBdContextModelSnapshot : ModelSnapshot
+    [Migration("20220310164120_CreateNotipetDbV5")]
+    partial class CreateNotipetDbV5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,18 +48,10 @@ namespace Notipet.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
                     b.Property<bool>("IsEmergency")
                         .HasColumnType("boolean");
 
                     b.Property<Guid>("PetId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SpecialistId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("Updated")
@@ -70,8 +64,6 @@ namespace Notipet.Data.Migrations
                     b.HasIndex("AssetsServicesId");
 
                     b.HasIndex("PetId");
-
-                    b.HasIndex("SpecialistId");
 
                     b.ToTable("Appointments");
                 });
@@ -409,9 +401,6 @@ namespace Notipet.Data.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("Gender")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -796,17 +785,9 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.User", "Specialist")
-                        .WithMany()
-                        .HasForeignKey("SpecialistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("AssetsServices");
 
                     b.Navigation("Pet");
-
-                    b.Navigation("Specialist");
                 });
 
             modelBuilder.Entity("Notipet.Domain.AssetsServices", b =>

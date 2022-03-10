@@ -6,25 +6,24 @@ using System.Threading.Tasks;
 
 namespace Notipet.Domain
 {
-    public enum RoleId
+    public enum SpecialityId
     {
-        Client,
-        Seller,
-        Admin,
-        Specialist
+        Speciality1,
+        Speciality2,
+        Speciality3
     }
 
     // This class just exists to create an equivalent table to the above enum
-    public class Role
+    public class Speciality
     {
-        public RoleId Id { get; set; }
+        public SpecialityId Id { get; set; }
 
         [Required]
-        [StringLength(10)]
+        [StringLength(20)]
         public string? Name { get; set; }
 
         //Pretty much useless, just to follow EF core conventions and create the Foreign Key
-        [ForeignKey("Role")]
-        public ICollection<UserRole>? UserRoles { get; set; }
+        [ForeignKey("Speciality")]
+        public ICollection<User>? Users { get; set; }
     }
 }

@@ -15,6 +15,9 @@ namespace Notipet.Domain
         public string? Name { get; set; }
 
         [Required]
+        public bool Gender { get; set; }
+
+        [Required]
         [Column("PetTypeId")]
         public PetTypeId PetType { get; set; }
 

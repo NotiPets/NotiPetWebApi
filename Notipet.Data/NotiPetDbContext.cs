@@ -198,6 +198,28 @@ namespace Notipet.Data
                     Name = e.ToString()
                 })
               );
+
+            // Speciality
+            modelBuilder
+              .Entity<User>()
+              .Property(e => e.Speciality)
+              .HasConversion<int>();
+
+            modelBuilder
+              .Entity<Speciality>()
+              .Property(e => e.Id)
+              .HasConversion<int>();
+
+            modelBuilder
+              .Entity<Speciality>().HasData(
+                Enum.GetValues(typeof(SpecialityId))
+                .Cast<SpecialityId>()
+                .Select(e => new Speciality()
+                {
+                    Id = e,
+                    Name = e.ToString()
+                })
+              );
         }
     }
 }
