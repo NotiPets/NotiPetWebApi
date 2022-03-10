@@ -43,5 +43,11 @@ namespace Notipet.Domain
 
         [StringLength(2048)]
         public string? PictureUrl { get; set; }
+
+        [Required]
+        public float? Latitude { get; set; }
+
+        [Required]
+        public float? Longitude { get; set; }
     }
 }
