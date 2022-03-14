@@ -31,17 +31,17 @@ namespace Notipet.Web.Controllers
         }
 
         // GET: api/Pets/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Pet>> GetPet(Guid id)
+        [HttpGet("{UserId}")]
+        public async Task<ActionResult<PetDto2>> GetPet(Guid UserId)
         {
-            var pet = await _context.Pets.FindAsync(id);
-
+            var pet = await _context.Pets.Where(x => x.UserId == UserId).FirstOrDefaultAsync();           
             if (pet == null)
             {
                 return NotFound();
             }
+            PetDto2 p2 = PetDto2.Map(pet);
 
-            return pet;
+            return p2;
         }
 
         // PUT: api/Pets/5
