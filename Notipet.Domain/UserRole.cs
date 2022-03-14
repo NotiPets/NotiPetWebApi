@@ -32,7 +32,7 @@ namespace Notipet.Domain
         public string? Username { get; set; }
 
         [Required]
-        [StringLength(128)]
+        [StringLength(256)]
         public string? Password { get; set; }
 
         [Required]

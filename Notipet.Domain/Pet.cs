@@ -20,7 +20,11 @@ namespace Notipet.Domain
 
         [Required]
         [Column("UserRoleId")]
-        public UserRole? UserRole { get; set; }
+        public User? User { get; set; }
+
+        [Required]
+        [Column("SizeId")]
+        public SizeId? Size { get; set; } = SizeId.Small;
         public bool Active { get; set; } = true;
 
         [StringLength(2048)]
@@ -29,6 +33,13 @@ namespace Notipet.Domain
         [StringLength(100)]
         public string? Description { get; set; }
 
+        // Male by default
+        public bool Gender { get; set; } = true;
+
+        // Is this really necesary?
+        public bool Vaccinated { get; set; } = false;
+        public bool Castrated { get; set; } = false;
+        public bool HasTracker { get; set; } = false;
         public DateTime Birthdate { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime? Updated { get; set; } = DateTime.Now;

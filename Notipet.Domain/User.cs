@@ -10,6 +10,28 @@ namespace Notipet.Domain
     {
         public Guid Id { get; set; }
 
+        [Column("RoleId")]
+        [Required]
+        public RoleId Role { get; set; }
+
+        [Required]
+        public Guid BusinessId { get; set; }
+
+        [NotMapped]
+        public Business? Business { get; set; }
+
+        [Required]
+        [StringLength(30)]
+        public string? Username { get; set; }
+
+        [Required]
+        [StringLength(256)]
+        public string? Password { get; set; }
+
+        [Required]
+        [StringLength(320)]
+        public string? Email { get; set; }
+
         [Required]
         [Column("DocumentTypeId")]
         public DocumentTypeId DocumentType { get; set; }
@@ -45,6 +67,9 @@ namespace Notipet.Domain
         [StringLength(25)]
         public string? Province { get; set; }
 
+        [StringLength(2048)]
+        public string PictureUrl { get; set; }
+        public bool Active { get; set; } = true;
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime? Updated { get; set; } = DateTime.Now;
     }
