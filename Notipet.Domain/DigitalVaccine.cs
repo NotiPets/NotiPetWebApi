@@ -20,7 +20,7 @@ namespace Notipet.Domain
 
         [Required]
         [Column("UserRoleId")]
-        public UserRole? UserRole { get; set; }
+        public User? User { get; set; }
 
         [Required]
         [StringLength(30)]

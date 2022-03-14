@@ -15,8 +15,7 @@ namespace Notipet.Data
     {
         public NotiPetBdContext CreateDbContext(string[] args)
         {
-            //var connectionString = Methods.GetConnectionString();
-            var connectionString = "Server=ec2-3-225-79-57.compute-1.amazonaws.com;Port=5432;Database=d7mtmb42b2odvt;User Id=qdfspkpbgyxsfk;Password=3f417b474c41396d2825fbb070167d086d3f769e463a82e6921c5b21441a83f4;";
+            var connectionString = Methods.GetConnectionString();
             var builder = new DbContextOptionsBuilder<NotiPetBdContext>();
             builder.UseNpgsql(connectionString);
             return new NotiPetBdContext(builder.Options);
@@ -27,7 +26,6 @@ namespace Notipet.Data
         public NotiPetBdContext(DbContextOptions<NotiPetBdContext> options) : base(options) { }
 
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<Pet> Pets { get; set; }
         public virtual DbSet<Appointment> Appointments { get; set; }
         public virtual DbSet<AssetsServices> AssetsServices { get; set; }
@@ -160,7 +158,7 @@ namespace Notipet.Data
 
             // Role
             modelBuilder
-              .Entity<UserRole>()
+              .Entity<User>()
               .Property(e => e.Role)
               .HasConversion<int>();
 
@@ -196,6 +194,27 @@ namespace Notipet.Data
                 Enum.GetValues(typeof(VendorId))
                 .Cast<VendorId>()
                 .Select(e => new Vendor()
+                {
+                    Id = e,
+                    Name = e.ToString()
+                })
+              );
+
+            modelBuilder
+              .Entity<Pet>()
+              .Property(e => e.Size)
+              .HasConversion<int>();
+
+            modelBuilder
+              .Entity<Size>()
+              .Property(e => e.Id)
+              .HasConversion<int>();
+
+            modelBuilder
+              .Entity<Size>().HasData(
+                Enum.GetValues(typeof(SizeId))
+                .Cast<SizeId>()
+                .Select(e => new Size()
                 {
                     Id = e,
                     Name = e.ToString()

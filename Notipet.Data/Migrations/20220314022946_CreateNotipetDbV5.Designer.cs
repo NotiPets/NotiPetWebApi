@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Notipet.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Notipet.Data.Migrations
 {
     [DbContext(typeof(NotiPetBdContext))]
-    partial class NotiPetBdContextModelSnapshot : ModelSnapshot
+    [Migration("20220314022946_CreateNotipetDbV5")]
+    partial class CreateNotipetDbV5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,7 +257,7 @@ namespace Notipet.Data.Migrations
                     b.Property<Guid>("PetId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UserRoleId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("VaccineName")
@@ -269,7 +271,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("PetId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserRoleId");
 
                     b.ToTable("DigitalVaccines");
                 });
@@ -439,8 +441,6 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("PetType");
 
-                    b.HasIndex("Size");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Pets");
@@ -567,38 +567,6 @@ namespace Notipet.Data.Migrations
                     b.ToTable("Sales");
                 });
 
-            modelBuilder.Entity("Notipet.Domain.Size", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Size");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 0,
-                            Name = "Small"
-                        },
-                        new
-                        {
-                            Id = 1,
-                            Name = "Medium"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Large"
-                        });
-                });
-
             modelBuilder.Entity("Notipet.Domain.Specialist", b =>
                 {
                     b.Property<int>("Id")
@@ -619,7 +587,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Specialists");
+                    b.ToTable("Specialist");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Speciality", b =>
@@ -642,7 +610,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Specialities");
+                    b.ToTable("Speciality");
                 });
 
             modelBuilder.Entity("Notipet.Domain.User", b =>
@@ -737,9 +705,59 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("DocumentType");
 
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Notipet.Domain.UserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("RoleId");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<bool>("Validated")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("Role");
 
-                    b.ToTable("Users");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Vendor", b =>
@@ -823,9 +841,9 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.User", "User")
+                    b.HasOne("Notipet.Domain.UserRole", "UserRole")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -833,7 +851,7 @@ namespace Notipet.Data.Migrations
 
                     b.Navigation("Pet");
 
-                    b.Navigation("User");
+                    b.Navigation("UserRole");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Order", b =>
@@ -880,12 +898,6 @@ namespace Notipet.Data.Migrations
                     b.HasOne("Notipet.Domain.PetType", null)
                         .WithMany("Pets")
                         .HasForeignKey("PetType")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Notipet.Domain.Size", null)
-                        .WithMany("Pets")
-                        .HasForeignKey("Size")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -949,12 +961,23 @@ namespace Notipet.Data.Migrations
                         .HasForeignKey("DocumentType")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("Notipet.Domain.UserRole", b =>
+                {
                     b.HasOne("Notipet.Domain.Role", null)
-                        .WithMany("Users")
+                        .WithMany("UserRoles")
                         .HasForeignKey("Role")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Notipet.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.AppointmentStatus", b =>
@@ -984,12 +1007,7 @@ namespace Notipet.Data.Migrations
 
             modelBuilder.Entity("Notipet.Domain.Role", b =>
                 {
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("Notipet.Domain.Size", b =>
-                {
-                    b.Navigation("Pets");
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Vendor", b =>
