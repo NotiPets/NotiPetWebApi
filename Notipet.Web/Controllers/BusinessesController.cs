@@ -72,22 +72,6 @@ namespace Notipet.Web.Controllers
             return CreatedAtAction("GetBusiness", new { id = business.Id }, business);
         }
 
-        // DELETE: api/Businesses/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBusiness(Guid id)
-        {
-            var business = await _context.Businesses.FindAsync(id);
-            if (business == null)
-            {
-                return NotFound();
-            }
-
-            _context.Businesses.Remove(business);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
         private bool BusinessExists(Guid id)
         {
             return _context.Businesses.Any(e => e.Id == id);

@@ -54,7 +54,7 @@ namespace Notipet.Web.Controllers
                     user.Password = Methods.ComputeSha256Hash(user.Password);
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    return CreatedAtAction("GetUserRole", new { id = user.Id }, new JsendSuccess(new { jwt = GenerateJwtToken(user.Username) }));
+                    return CreatedAtAction("GetUser", new { id = user.Id }, new JsendSuccess(new { jwt = GenerateJwtToken(user.Username) }));
                 }
                 else
                 {
