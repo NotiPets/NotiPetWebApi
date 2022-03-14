@@ -35,7 +35,8 @@ namespace Notipet.Web.Controllers
                     Token = GenerateJwtToken(search.Username),
                     Username = search.Username,
                     Email = search.Email,
-                    BusinessId = search.BusinessId.ToString()
+                    BusinessId = search.BusinessId.ToString(),
+                    UserId = search.Id.ToString()
                 });
                 return Ok(new JsendSuccess(data));
             }
