@@ -24,6 +24,6 @@ namespace Notipet.Domain
 
         //Pretty much useless, just to follow EF core conventions and create the Foreign Key
         [ForeignKey("Role")]
-        public ICollection<UserRole>? UserRoles { get; set; }
+        public ICollection<User>? Users { get; set; }
     }
 }

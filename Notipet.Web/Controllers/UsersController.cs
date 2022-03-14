@@ -8,39 +8,52 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
-using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BusinessesController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly NotiPetBdContext _context;
 
-        public BusinessesController(NotiPetBdContext context)
+        public UsersController(NotiPetBdContext context)
         {
             _context = context;
         }
 
-        // GET: api/Businesses
+        // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Business>>> GetBusinesses()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Businesses.ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
-        // PUT: api/Businesses/5
+        // GET: api/Users/5
+        [HttpGet("{username}")]
+        public async Task<ActionResult<User>> GetUser(string username)
+        {
+            var user = await _context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
+            user.Password = "Ignore";
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
+        // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBusiness(Guid id, Business business)
+        public async Task<IActionResult> PutUser(Guid id, User user)
         {
-            if (id != business.Id)
+            if (id != user.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(business).State = EntityState.Modified;
+            _context.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -48,7 +61,7 @@ namespace Notipet.Web.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BusinessExists(id))
+                if (!UserExists(id))
                 {
                     return NotFound();
                 }
@@ -61,20 +74,20 @@ namespace Notipet.Web.Controllers
             return NoContent();
         }
 
-        // POST: api/Businesses
+        // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Business>> PostBusiness(BusinessDto businessDto)
+        public async Task<ActionResult<User>> PostUser(User user)
         {
-            var business = businessDto.ConvertToType();
-            _context.Businesses.Add(business);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetBusiness", new { id = business.Id }, business);
+
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        private bool BusinessExists(Guid id)
+        private bool UserExists(Guid id)
         {
-            return _context.Businesses.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Notipet.Web.DTO
         public string? Password { get; set; }
         public string? Email { get; set; }
 
-        public UserRole ConvertToType()
+        public User ConvertToType()
         {
-            return new UserRole()
+            return new User()
             {
                 Id = new Guid(),
-                User = User.CovertToType(),
+                //User = User.CovertToType(),
                 Role = Role,
                 BusinessId = BusinessId,
                 Username = Username,

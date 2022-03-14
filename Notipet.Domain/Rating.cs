@@ -10,9 +10,12 @@ namespace Notipet.Domain
     {
         public Guid Id { get; set; }
 
+        [Column("SpecialistId")]
+        public Specialist? Specialist { get; set; }
+
         [Required]
-        [Column("UserRoleId")]
-        public UserRole? UserRole { get; set; }
+        [Column("UserId")]
+        public User? User { get; set; }
 
         [Required]
         [Column("AssetsServicesId")]

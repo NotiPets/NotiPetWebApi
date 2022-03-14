@@ -26,7 +26,6 @@ namespace Notipet.Data
         public NotiPetBdContext(DbContextOptions<NotiPetBdContext> options) : base(options) { }
 
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<Pet> Pets { get; set; }
         public virtual DbSet<Appointment> Appointments { get; set; }
         public virtual DbSet<AssetsServices> AssetsServices { get; set; }
@@ -35,6 +34,8 @@ namespace Notipet.Data
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<Sale> Sales { get; set; }
         public virtual DbSet<Rating> Ratings { get; set; }
+        public virtual DbSet<Specialist> Specialists { get; set; }
+        public virtual DbSet<Speciality> Specialities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -157,7 +158,7 @@ namespace Notipet.Data
 
             // Role
             modelBuilder
-              .Entity<UserRole>()
+              .Entity<User>()
               .Property(e => e.Role)
               .HasConversion<int>();
 
@@ -193,6 +194,27 @@ namespace Notipet.Data
                 Enum.GetValues(typeof(VendorId))
                 .Cast<VendorId>()
                 .Select(e => new Vendor()
+                {
+                    Id = e,
+                    Name = e.ToString()
+                })
+              );
+
+            modelBuilder
+              .Entity<Pet>()
+              .Property(e => e.Size)
+              .HasConversion<int>();
+
+            modelBuilder
+              .Entity<Size>()
+              .Property(e => e.Id)
+              .HasConversion<int>();
+
+            modelBuilder
+              .Entity<Size>().HasData(
+                Enum.GetValues(typeof(SizeId))
+                .Cast<SizeId>()
+                .Select(e => new Size()
                 {
                     Id = e,
                     Name = e.ToString()

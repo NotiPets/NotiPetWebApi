@@ -13,10 +13,16 @@ namespace Notipet.Web.DTO
         public string? Address2 { get; set; }
         public string? City { get; set; }
         public string? Province { get; set; }
+        public RoleId Role { get; set; }
+        public Guid BusinessId { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string? Email { get; set; }
+        public string? PictureUrl { get; set; }
 
         public User CovertToType()
         {
-            return new User
+            return new User()
             {
                 Id = new Guid(),
                 DocumentType = DocumentType,
@@ -29,7 +35,13 @@ namespace Notipet.Web.DTO
                 City = City,
                 Province = Province,
                 Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
-                Updated = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)
+                Updated = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                Role = Role,
+                BusinessId = BusinessId,
+                Username = Username,
+                Password = Password,
+                PictureUrl = PictureUrl,
+                Email = Email
             };
         }
 

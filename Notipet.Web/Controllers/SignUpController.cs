@@ -29,32 +29,32 @@ namespace Notipet.Web.Controllers
 
         // GET: api/SignUp/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserRole>> GetUserRole(Guid id)
+        public async Task<ActionResult<User>> GetUserRole(Guid id)
         {
-            var userRole = await _context.UserRoles.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (userRole == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return userRole;
+            return user;
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserRole>> PostUserRole(UserRoleDto userRoleDto)
+        public async Task<ActionResult<User>> PostUserRole(UserDto userDto)
         {
-            var userRole = userRoleDto.ConvertToType();
-            var possibleUser = await _context.UserRoles.Where(x => x.Username == userRole.Username).FirstOrDefaultAsync();
+            var user = userDto.CovertToType();
+            var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
             if (possibleUser == null)
             {
-                userRole.Business = await _context.Businesses.Where(x => x.Id == userRole.BusinessId).FirstOrDefaultAsync();
-                if (userRole.Business != null)
+                user.Business = await _context.Businesses.Where(x => x.Id == user.BusinessId).FirstOrDefaultAsync();
+                if (user.Business != null)
                 {
-                    userRole.Password = Methods.ComputeSha256Hash(userRole.Password);
-                    _context.UserRoles.Add(userRole);
+                    user.Password = Methods.ComputeSha256Hash(user.Password);
+                    _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    return CreatedAtAction("GetUserRole", new { id = userRole.Id }, new JsendSuccess(new { jwt = GenerateJwtToken(userRole.Username) }));
+                    return CreatedAtAction("GetUser", new { id = user.Id }, new JsendSuccess(new { jwt = GenerateJwtToken(user.Username) }));
                 }
                 else
                 {

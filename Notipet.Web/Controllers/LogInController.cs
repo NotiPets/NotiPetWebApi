@@ -1,18 +1,5 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
@@ -36,10 +23,9 @@ namespace Notipet.Web.Controllers
         public async Task<ActionResult<LoginResponseDto>> LogIn(LoginDto login)
         {
             login.Password = Methods.ComputeSha256Hash(login.Password);
-            UserRole search = new UserRole();
+            User search = new User();
 
-            search = await _context.UserRoles
-                .Include(x => x.User)
+            search = await _context.Users
                 .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
 
             if (search != null)
@@ -49,14 +35,13 @@ namespace Notipet.Web.Controllers
                     Token = GenerateJwtToken(search.Username),
                     Username = search.Username,
                     Email = search.Email,
-                    BusinessId = search.BusinessId.ToString(),
-                    User = search.User
+                    BusinessId = search.BusinessId.ToString()
                 });
                 return Ok(new JsendSuccess(data));
             }
             else
             {
-                return Unauthorized(new JsendFail(new { credentials = "Invalid credentials" }));
+                return Unauthorized(new JsendFail(new { credentials = "INVALID_CREDENTIALS" }));
             }
         }
     }
