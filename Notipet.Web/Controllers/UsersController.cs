@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
+using Notipet.Web.DataWrapper;
 
 namespace Notipet.Web.Controllers
 {
@@ -37,10 +38,10 @@ namespace Notipet.Web.Controllers
             user.Password = "Ignore";
             if (user == null)
             {
-                return NotFound();
+                return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
             }
 
-            return user;
+            return Ok(new JsendSuccess(user));
         }
 
         // PUT: api/Users/5

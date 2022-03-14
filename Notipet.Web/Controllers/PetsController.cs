@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
+using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
@@ -37,11 +38,11 @@ namespace Notipet.Web.Controllers
             var pet = await _context.Pets.Where(x => x.UserId == UserId).FirstOrDefaultAsync();
             if (pet == null)
             {
-                return NotFound();
+                return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
             }
             PetDto2 p2 = PetDto2.Map(pet);
 
-            return p2;
+            return Ok(new JsendSuccess(p2));
         }
 
         // PUT: api/Pets/5
@@ -84,7 +85,7 @@ namespace Notipet.Web.Controllers
             _context.Pets.Add(pet);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPet", new { id = pet.Id }, pet);
+            return Ok(new JsendSuccess(pet));
         }
 
         // DELETE: api/Pets/5
