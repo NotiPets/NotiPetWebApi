@@ -34,7 +34,7 @@ namespace Notipet.Web.Controllers
         [HttpGet("{UserId}")]
         public async Task<ActionResult<PetDto2>> GetPet(Guid UserId)
         {
-            var pet = await _context.Pets.Where(x => x.UserId == UserId).FirstOrDefaultAsync();           
+            var pet = await _context.Pets.Where(x => x.UserId == UserId).FirstOrDefaultAsync();
             if (pet == null)
             {
                 return NotFound();

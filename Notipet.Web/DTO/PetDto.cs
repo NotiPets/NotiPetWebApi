@@ -34,8 +34,8 @@ namespace Notipet.Web.DTO
             p.PictureUrl = PictureUrl;
             p.Description = Description;
             p.Gender = Gender;
-            p.Vaccinated = Vaccinated; 
-            p.Castrated = Castrated;    
+            p.Vaccinated = Vaccinated;
+            p.Castrated = Castrated;
             p.HasTracker = HasTracker;
             p.Birthdate = Birthdate;
             return p;

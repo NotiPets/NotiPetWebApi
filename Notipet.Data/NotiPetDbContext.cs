@@ -15,7 +15,7 @@ namespace Notipet.Data
     {
         public NotiPetBdContext CreateDbContext(string[] args)
         {
-            var connectionString = Methods.GetConnectionString();      
+            var connectionString = Methods.GetConnectionString();
             var builder = new DbContextOptionsBuilder<NotiPetBdContext>();
             builder.UseNpgsql(connectionString);
             return new NotiPetBdContext(builder.Options);
