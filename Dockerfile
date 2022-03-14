@@ -16,7 +16,7 @@ RUN dotnet build "Notipet.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
 WORKDIR "/src/Notipet.Web"
-RUN dotnet publish "Notipet.Web.csproj" -c Release -o /app/publish
+RUN dotnet publish "Notipet.Web.csproj" -c Release -o /app/publish --self-contained false
 
 FROM base AS final
 WORKDIR /app
