@@ -11,7 +11,6 @@ using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
 using Utilities;
-
 namespace Notipet.Web.Controllers
 {
     [Route("api/[controller]")]
@@ -31,8 +30,7 @@ namespace Notipet.Web.Controllers
         {
             {
                 SpecialistDto specialistDto = new SpecialistDto();
-                List<Specialist> specialists = await _context.Specialists.ToListAsync();
-                return Ok(specialists);
+                List<Specialist> specialists = await _context.Specialists.Include("Speciality").Include("User").ToListAsync();
                 List<SpecialistDto> specialistsMapped = new List<SpecialistDto>();
                 foreach (var item in specialists)
                 {
@@ -103,22 +101,6 @@ namespace Notipet.Web.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetSpecialist", new { id = specialist.Id }, specialist);
-        }
-
-        // DELETE: api/Specialists/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSpecialist(int id)
-        {
-            var specialist = await _context.Specialists.FindAsync(id);
-            if (specialist == null)
-            {
-                return NotFound();
-            }
-
-            _context.Specialists.Remove(specialist);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool SpecialistExists(int id)

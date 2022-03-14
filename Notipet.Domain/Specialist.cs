@@ -9,7 +9,9 @@ namespace Notipet.Domain
     public class Specialist
     {
         public int Id { get; set; }
-        public User User { get; set; }
-        public Speciality Speciality { get; set; }
+
+        public User? User { get; set; }
+
+        public Speciality? Speciality { get; set; }
     }
 }
