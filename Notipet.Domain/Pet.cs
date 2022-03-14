@@ -8,7 +8,7 @@ namespace Notipet.Domain
 {
     public class Pet
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = new Guid();
 
         [Required]
         [StringLength(20)]
@@ -19,7 +19,9 @@ namespace Notipet.Domain
         public PetTypeId PetType { get; set; }
 
         [Required]
-        [Column("UserRoleId")]
+        public Guid UserId { get; set; }
+
+        [NotMapped]
         public User? User { get; set; }
 
         [Required]
@@ -41,7 +43,7 @@ namespace Notipet.Domain
         public bool Castrated { get; set; } = false;
         public bool HasTracker { get; set; } = false;
         public DateTime Birthdate { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
-        public DateTime? Updated { get; set; } = DateTime.Now;
+        public DateTime Created { get; set; } = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+        public DateTime? Updated { get; set; } = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
     }
 }
