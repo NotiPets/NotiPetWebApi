@@ -9,10 +9,7 @@
         public string? BusinessId { get; set; }
         public string? Description { get; set; }
         public string? PictureUrl { get; set; }
-        public SpecialistDto ConvertToType()
-        {
-            return new SpecialistDto();
-        }
+
     }
 
 }

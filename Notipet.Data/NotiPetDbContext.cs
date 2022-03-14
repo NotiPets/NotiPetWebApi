@@ -36,7 +36,8 @@ namespace Notipet.Data
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<Sale> Sales { get; set; }
         public virtual DbSet<Rating> Ratings { get; set; }
-        public virtual DbSet<Specialist> Specialist { get; set; }
+        public virtual DbSet<Specialist> Specialists { get; set; }
+        public virtual DbSet<Speciality> Specialities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
