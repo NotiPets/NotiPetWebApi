@@ -58,8 +58,8 @@ app.MapGet("/", () => "All working!");
 
 app.UseCors(x => x.AllowAnyHeader()
                   .AllowAnyMethod()
-                  .AllowAnyOrigin()
-                  //.SetIsOriginAllowed(origin => true)
+                  //.AllowAnyOrigin()
+                  .SetIsOriginAllowed(origin => true)
                   .AllowCredentials());
 
 // Configure the HTTP request pipeline.
