@@ -48,7 +48,7 @@ namespace Notipet.Web.Controllers
             var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
             if (possibleUser == null)
             {
-                if (DocumentExist(possibleUser.Document))
+                if (DocumentExist(user.Document))
                 {
                     return Conflict(new JsendFail(new { username = "Document already exist" }));
                 }
@@ -80,6 +80,8 @@ namespace Notipet.Web.Controllers
         }
         private bool DocumentExist(string doc)
         {
+            if (doc == null)
+                return false;
             return _context.Users.Any(e => e.Document == doc);
         }
     }
