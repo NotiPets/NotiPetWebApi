@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
+using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
@@ -27,7 +28,8 @@ namespace Notipet.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Business>>> GetBusinesses()
         {
-            return await _context.Businesses.ToListAsync();
+            var data = await _context.Businesses.ToListAsync();
+            return Ok(new JsendSuccess(data));
         }
 
         // PUT: api/Businesses/5

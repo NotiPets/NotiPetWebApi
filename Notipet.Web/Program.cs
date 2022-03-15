@@ -49,7 +49,6 @@ using (var context = new NotiPetBdContext(new DbContextOptionsBuilder<NotiPetBdC
     await context.Database.MigrateAsync();
     Console.WriteLine("Database up to date");
 }
-
 builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(connectionString));
 
 var app = builder.Build();
