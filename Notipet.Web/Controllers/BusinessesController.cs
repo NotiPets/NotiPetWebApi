@@ -71,7 +71,7 @@ namespace Notipet.Web.Controllers
             var business = businessDto.ConvertToType();
             _context.Businesses.Add(business);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetBusiness", new { id = business.Id }, business);
+            return Ok(new JsendSuccess(business));
         }
 
         private bool BusinessExists(Guid id)
