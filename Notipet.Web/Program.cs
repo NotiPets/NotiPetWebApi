@@ -56,9 +56,10 @@ var app = builder.Build();
 
 app.MapGet("/", () => "All working!");
 
-app.UseCors(x => x.AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .SetIsOriginAllowed(origin => true)
+app.UseCors(x => x.AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowAnyOrigin()
+                  //.SetIsOriginAllowed(origin => true)
                   .AllowCredentials());
 
 // Configure the HTTP request pipeline.
