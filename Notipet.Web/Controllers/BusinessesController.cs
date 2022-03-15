@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
-using Notipet.Web.DTO;
 using Notipet.Web.DataWrapper;
+using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
 {
