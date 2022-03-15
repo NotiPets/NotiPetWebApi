@@ -39,10 +39,10 @@ namespace Notipet.Web.Controllers
 
             if (speciality == null)
             {
-                return NotFound();
+                return NotFound(new JsendFail(new { Specialty = "NOT_FOUND" }));
             }
 
-            return speciality;
+            return Ok(new JsendSuccess(speciality));
         }
 
         // PUT: api/Specialities/5
@@ -83,8 +83,8 @@ namespace Notipet.Web.Controllers
         {
             _context.Specialities.Add(speciality);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetSpeciality", new { id = speciality.Id }, speciality);
+            var a = await _context.Specialities.FindAsync(speciality.Id);
+            return Ok(new JsendSuccess(a));
         }
 
         private bool SpecialityExists(int id)

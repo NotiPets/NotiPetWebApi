@@ -48,13 +48,25 @@ namespace Notipet.Web.Controllers
             var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
             if (possibleUser == null)
             {
+                if (DocumentExist(possibleUser.Document))
+                {
+                    return Conflict(new JsendFail(new { username = "Document already exist" }));
+                }
                 user.Business = await _context.Businesses.Where(x => x.Id == user.BusinessId).FirstOrDefaultAsync();
                 if (user.Business != null)
                 {
                     user.Password = Methods.ComputeSha256Hash(user.Password);
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    return CreatedAtAction("GetUser", new { id = user.Id }, new JsendSuccess(new { jwt = GenerateJwtToken(user.Username) }));
+                    var data = (new LoginResponseDto
+                    {
+                        Token = GenerateJwtToken(user.Username),
+                        Username = user.Username,
+                        Email = user.Email,
+                        BusinessId = user.BusinessId.ToString(),
+                        UserId = user.Id.ToString()
+                    });
+                    return Ok(new JsendSuccess(data));
                 }
                 else
                 {
@@ -65,6 +77,10 @@ namespace Notipet.Web.Controllers
             {
                 return Conflict(new JsendFail(new { username = "Username already exist" }));
             }
+        }
+        private bool DocumentExist(string doc)
+        {
+            return _context.Users.Any(e => e.Document == doc);
         }
     }
 }
