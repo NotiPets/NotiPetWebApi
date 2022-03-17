@@ -1,7 +1,9 @@
 name: Deploy Production .NET
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+    - main
 
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
