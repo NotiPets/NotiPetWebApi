@@ -3,7 +3,7 @@ name: Deploy Production .NET
 on:
   push:
     branches:
-    - main
+    - production
 
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
