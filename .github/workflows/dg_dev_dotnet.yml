@@ -1,0 +1,31 @@
+name: DG dev .NET
+
+on:
+  push:
+    branches: 
+    - 'dg/feature/**'
+
+env:
+  HEROKU_API_KEY: ${{ secrets.WR_DEV_HEROKU_API_KEY }}
+  APP_NAME: ${{ secrets.APP_NAME }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: notipet-dg-dev
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Docker build
+      run: docker login -u=_ -p=$HEROKU_API_KEY registry.heroku.com
+    - name: Publish
+      run: |
+        heroku container:push web -a $APP_NAME
+        heroku container:release web -a $APP_NAME
