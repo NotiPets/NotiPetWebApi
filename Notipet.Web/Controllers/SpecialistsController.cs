@@ -26,44 +26,60 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Specialists
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialists()
-        {
-            {
-                SpecialistDto specialistDto = new SpecialistDto();
-                List<Specialist> specialists = await _context.Specialists.Include("Speciality").Include("User").ToListAsync();
-                List<SpecialistDto> specialistsMapped = new List<SpecialistDto>();
-                foreach (var item in specialists)
-                {
-                    specialistDto.Name = item.User.Names.ToString();
-                    specialistDto.LastName = item.User.Lastnames.ToString();
-                    specialistDto.Specialty = item.Speciality.Name.ToString();
-                    specialistDto.Rating = 1;
-                    specialistDto.BusinessId = item.User.BusinessId.ToString();
-                    specialistDto.Description = item.Speciality.Description.ToString();
-                    specialistDto.PictureUrl = item.User.PictureUrl.ToString();
-                    specialistsMapped.Add(specialistDto);
-                }
-                return Ok(new JsendSuccess(specialistDto));
-            }
-        }
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialists() => Ok(new JsendSuccess(await GetSpecialistDto(await _context.Specialists.Include("Speciality").Include("User").ToListAsync())));
 
         // GET: api/Specialists/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Specialist>> GetSpecialist(int id)
+        [HttpGet("{username}")]
+        public async Task<ActionResult<Specialist>> GetSpecialist(string username)
         {
-            var specialist = await _context.Specialists.FindAsync(id);
+            var specialist = await _context.Specialists.Where(x => x.User.Active == true && x.User.Username.ToLower() == username.ToLower())
+                .Include("Speciality")
+                .Include("User")
+                .FirstOrDefaultAsync();
 
             if (specialist == null)
             {
-                return NotFound();
+                return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
             }
 
-            return specialist;
+            var specialistDto = new SpecialistDto
+            {
+                Name = specialist.User.Names.ToString(),
+                LastName = specialist.User.Lastnames.ToString(),
+                Specialty = specialist.Speciality.Name.ToString(),
+                Rating = 1,
+                BusinessId = specialist.User.BusinessId.ToString(),
+                Description = specialist.Speciality.Description.ToString(),
+                PictureUrl = specialist.User.PictureUrl.ToString(),
+            };
+
+            return Ok(new JsendSuccess(specialistDto));
+        }
+
+        [HttpGet("BySpeciality/{specialityId}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistBySpeciality(int specialityId) => Ok(new JsendSuccess(await GetSpecialistDto(await _context.Specialists.Where(x => x.Speciality.Id == specialityId).Include("Speciality").Include("User").ToListAsync())));
+
+        private async Task<List<SpecialistDto>> GetSpecialistDto(List<Specialist> specialist)
+        {
+            SpecialistDto specialistDto = new SpecialistDto();
+            List<SpecialistDto> specialistsMapped = new List<SpecialistDto>();
+            foreach (var item in specialist)
+            {
+                specialistDto.Name = item.User.Names.ToString();
+                specialistDto.LastName = item.User.Lastnames.ToString();
+                specialistDto.Specialty = item.Speciality.Name.ToString();
+                specialistDto.Rating = 1;
+                specialistDto.BusinessId = item.User.BusinessId.ToString();
+                specialistDto.Description = item.Speciality.Description.ToString();
+                specialistDto.PictureUrl = item.User.PictureUrl.ToString();
+                specialistsMapped.Add(specialistDto);
+            }
+            return specialistsMapped;
         }
 
         // PUT: api/Specialists/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<IActionResult> PutSpecialist(int id, Specialist specialist)
         {
             if (id != specialist.Id)
@@ -92,20 +108,9 @@ namespace Notipet.Web.Controllers
             return NoContent();
         }
 
-        // POST: api/Specialists
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Specialist>> PostSpecialist(Specialist specialist)
-        {
-            _context.Specialists.Add(specialist);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetSpecialist", new { id = specialist.Id }, specialist);
-        }
-
         private bool SpecialistExists(int id)
         {
             return _context.Specialists.Any(e => e.Id == id);
-        }
+        }*/
     }
 }

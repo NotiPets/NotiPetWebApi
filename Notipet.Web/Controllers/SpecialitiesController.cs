@@ -25,29 +25,11 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Specialities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Speciality>>> GetSpecialities()
-        {
-            var data = await _context.Specialities.ToListAsync();
-            return Ok(new JsendSuccess(data));
-        }
-
-        // GET: api/Specialities/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Speciality>> GetSpeciality(int id)
-        {
-            var speciality = await _context.Specialities.FindAsync(id);
-
-            if (speciality == null)
-            {
-                return NotFound(new JsendFail(new { Specialty = "NOT_FOUND" }));
-            }
-
-            return Ok(new JsendSuccess(speciality));
-        }
+        public async Task<ActionResult<IEnumerable<Speciality>>> GetSpecialities() => Ok(new JsendSuccess(await _context.Specialities.ToListAsync()));
 
         // PUT: api/Specialities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<IActionResult> PutSpeciality(int id, Speciality speciality)
         {
             if (id != speciality.Id)
@@ -76,6 +58,11 @@ namespace Notipet.Web.Controllers
             return NoContent();
         }
 
+        private bool SpecialityExists(int id)
+        {
+            return _context.Specialities.Any(e => e.Id == id);
+        }*/
+
         // POST: api/Specialities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -83,13 +70,7 @@ namespace Notipet.Web.Controllers
         {
             _context.Specialities.Add(speciality);
             await _context.SaveChangesAsync();
-            var a = await _context.Specialities.FindAsync(speciality.Id);
-            return Ok(new JsendSuccess(a));
-        }
-
-        private bool SpecialityExists(int id)
-        {
-            return _context.Specialities.Any(e => e.Id == id);
+            return Ok(new JsendSuccess(speciality));
         }
     }
 }

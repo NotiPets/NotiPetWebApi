@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
+using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
 {
@@ -24,17 +25,26 @@ namespace Notipet.Web.Controllers
         }
 
         // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        [HttpGet("Role/{role}")]
+        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetUsers(RoleId role)
         {
-            return await _context.Users.ToListAsync();
+            if (RoleId.Specialist != role)
+            {
+                var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist).ToListAsync();
+                users.ForEach(x => x.Password = "Ignore");
+                return Ok(new JsendSuccess(users));
+            }
+            else
+            {
+                return BadRequest(new JsendFail(new { role = "This method doesn't handle Specialist" }));
+            }
         }
 
         // GET: api/Users/5
         [HttpGet("{username}")]
-        public async Task<ActionResult<User>> GetUser(string username)
+        public async Task<ActionResult<JsendWrapper>> GetUser(string username)
         {
-            var user = await _context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
+            var user = await _context.Users.Where(x => x.Active == true && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
             user.Password = "Ignore";
             if (user == null)
             {
@@ -46,7 +56,7 @@ namespace Notipet.Web.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<IActionResult> PutUser(Guid id, User user)
         {
             if (id != user.Id)
@@ -75,20 +85,9 @@ namespace Notipet.Web.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
-        }
-
         private bool UserExists(Guid id)
         {
             return _context.Users.Any(e => e.Id == id);
-        }
+        }*/
     }
 }
