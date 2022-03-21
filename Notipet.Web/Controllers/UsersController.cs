@@ -24,9 +24,23 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
+        // GET: api/Users/5
+        [HttpGet("{username}")]
+        public async Task<ActionResult<JsendWrapper>> GetUser(string username)
+        {
+            var user = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+            user.Password = "Ignore";
+            if (user == null)
+            {
+                return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
+            }
+
+            return Ok(new JsendSuccess(user));
+        }
+
         // GET: api/Users
-        [HttpGet("Role/{role}")]
-        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetUsers(RoleId role)
+        [HttpGet("ByRole/{role}")]
+        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetUsersByRole(RoleId role)
         {
             if (RoleId.Specialist != role)
             {
@@ -40,20 +54,13 @@ namespace Notipet.Web.Controllers
             }
         }
 
-        // GET: api/Users/5
-        [HttpGet("{username}")]
-        public async Task<ActionResult<JsendWrapper>> GetUser(string username)
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetUsersByBusiness(Guid businessId)
         {
-            var user = await _context.Users.Where(x => x.Active == true && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
-            user.Password = "Ignore";
-            if (user == null)
-            {
-                return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
-            }
-
-            return Ok(new JsendSuccess(user));
+            var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.BusinessId == businessId).ToListAsync();
+            users.ForEach(x => x.Password = "Ignore");
+            return Ok(new JsendSuccess(users));
         }
-
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /*[HttpPut("{id}")]

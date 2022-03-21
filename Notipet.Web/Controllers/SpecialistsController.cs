@@ -26,17 +26,24 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Specialists
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialists() => Ok(new JsendSuccess(await GetSpecialistDto(await _context.Specialists.Include("Speciality").Include("User").ToListAsync())));
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialists()
+        {
+            var specialists = await _context.Specialists.Include("User").ToListAsync();
+            for (int i = 0; i < specialists.Count; i++)
+            {
+                specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
+            }
+            return Ok(new JsendSuccess(await GetSpecialistsDtoAsync(specialists)));
+        }
 
         // GET: api/Specialists/5
         [HttpGet("{username}")]
         public async Task<ActionResult<Specialist>> GetSpecialist(string username)
         {
             var specialist = await _context.Specialists.Where(x => x.User.Active == true && x.User.Username.ToLower() == username.ToLower())
-                .Include("Speciality")
                 .Include("User")
                 .FirstOrDefaultAsync();
-
+            specialist.Speciality = await _context.Specialities.Where(x => x.Id == specialist.SpecialityId).FirstOrDefaultAsync();
             if (specialist == null)
             {
                 return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
@@ -57,9 +64,28 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("BySpeciality/{specialityId}")]
-        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistBySpeciality(int specialityId) => Ok(new JsendSuccess(await GetSpecialistDto(await _context.Specialists.Where(x => x.Speciality.Id == specialityId).Include("Speciality").Include("User").ToListAsync())));
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistBySpeciality(int specialityId)
+        {
+            var specialists = await _context.Specialists.Where(x => x.SpecialityId == specialityId).Include("User").ToListAsync();
+            for (int i = 0; i < specialists.Count; i++)
+            {
+                specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
+            }
+            return Ok(new JsendSuccess(await GetSpecialistsDtoAsync(specialists)));
+        }
 
-        private async Task<List<SpecialistDto>> GetSpecialistDto(List<Specialist> specialist)
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistsByBusiness(Guid businessId)
+        {
+            var specialists = await _context.Specialists.Where(x => x.User.BusinessId == businessId).Include("User").ToListAsync();
+            for (int i = 0; i < specialists.Count; i++)
+            {
+                specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
+            }
+            return Ok(new JsendSuccess(await GetSpecialistsDtoAsync(specialists)));
+        }
+
+        private async Task<List<SpecialistDto>> GetSpecialistsDtoAsync(List<Specialist> specialist)
         {
             SpecialistDto specialistDto = new SpecialistDto();
             List<SpecialistDto> specialistsMapped = new List<SpecialistDto>();
