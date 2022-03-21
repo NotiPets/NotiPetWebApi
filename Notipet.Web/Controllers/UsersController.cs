@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
+using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
 {
@@ -23,18 +24,11 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-        {
-            return await _context.Users.ToListAsync();
-        }
-
         // GET: api/Users/5
         [HttpGet("{username}")]
-        public async Task<ActionResult<User>> GetUser(string username)
+        public async Task<ActionResult<JsendWrapper>> GetUser(string username)
         {
-            var user = await _context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
+            var user = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
             user.Password = "Ignore";
             if (user == null)
             {
@@ -44,46 +38,67 @@ namespace Notipet.Web.Controllers
             return Ok(new JsendSuccess(user));
         }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(Guid id, User user)
+        // GET: api/Users
+        [HttpGet("ByRole/{role}")]
+        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetUsersByRole(RoleId role)
         {
-            if (id != user.Id)
+            if (RoleId.Specialist != role)
             {
-                return BadRequest();
+                var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist).ToListAsync();
+                users.ForEach(x => x.Password = "Ignore");
+                return Ok(new JsendSuccess(users));
             }
+            else
+            {
+                return BadRequest(new JsendFail(new { role = "This method doesn't handle Specialist" }));
+            }
+        }
 
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetUsersByBusiness(Guid businessId)
+        {
+            var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.BusinessId == businessId).ToListAsync();
+            users.ForEach(x => x.Password = "Ignore");
+            return Ok(new JsendSuccess(users));
+        }
+
+        [HttpPut("userId")]
+        public async Task<IActionResult> PutUser(Guid userId, UserDto userDto)
+        {
+            // This needs to reject the password in the object (prolly new DTO)
+            var user = userDto.CovertToType();
+            user.Id = userId;
             _context.Entry(user).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!UserExists(user.Id))
                 {
-                    return NotFound();
+                    return NotFound(new JsendFail(new { notFound = "User not found" }));
                 }
                 else
                 {
                     throw;
                 }
             }
-
-            return NoContent();
+            return Ok(new JsendSuccess(new { }));
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [HttpDelete()]
+        public async Task<IActionResult> DeleteUser(Guid userId)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            var user = await _context.Users.Where(x => x.Active == true && x.Id == userId).FirstOrDefaultAsync();
+            if (user != null)
+            {
+                user.Active = false;
+                _context.Entry(user).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(new { }));
+            }
+            return NotFound(new JsendFail(new { notFound = "User not found" }));
         }
 
         private bool UserExists(Guid id)
