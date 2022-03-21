@@ -28,7 +28,7 @@ namespace Notipet.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialists()
         {
-            var specialists = await _context.Specialists.Include("User").ToListAsync();
+            var specialists = await _context.Specialists.Where(x => x.User.Active == true).Include("User").ToListAsync();
             for (int i = 0; i < specialists.Count; i++)
             {
                 specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
@@ -43,30 +43,28 @@ namespace Notipet.Web.Controllers
             var specialist = await _context.Specialists.Where(x => x.User.Active == true && x.User.Username.ToLower() == username.ToLower())
                 .Include("User")
                 .FirstOrDefaultAsync();
-            specialist.Speciality = await _context.Specialities.Where(x => x.Id == specialist.SpecialityId).FirstOrDefaultAsync();
-            if (specialist == null)
+            if (specialist != null)
             {
-                return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
+                specialist.Speciality = await _context.Specialities.Where(x => x.Id == specialist.SpecialityId).FirstOrDefaultAsync();
+                var specialistDto = new SpecialistDto
+                {
+                    Name = specialist.User.Names.ToString(),
+                    LastName = specialist.User.Lastnames.ToString(),
+                    Specialty = specialist.Speciality.Name.ToString(),
+                    Rating = 1,
+                    BusinessId = specialist.User.BusinessId.ToString(),
+                    Description = specialist.Speciality.Description.ToString(),
+                    PictureUrl = specialist.User.PictureUrl.ToString(),
+                };
+                return Ok(new JsendSuccess(specialistDto));
             }
-
-            var specialistDto = new SpecialistDto
-            {
-                Name = specialist.User.Names.ToString(),
-                LastName = specialist.User.Lastnames.ToString(),
-                Specialty = specialist.Speciality.Name.ToString(),
-                Rating = 1,
-                BusinessId = specialist.User.BusinessId.ToString(),
-                Description = specialist.Speciality.Description.ToString(),
-                PictureUrl = specialist.User.PictureUrl.ToString(),
-            };
-
-            return Ok(new JsendSuccess(specialistDto));
+            return NotFound(new JsendFail(new { notFounf = "Specialist not found" }));
         }
 
         [HttpGet("BySpeciality/{specialityId}")]
         public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistBySpeciality(int specialityId)
         {
-            var specialists = await _context.Specialists.Where(x => x.SpecialityId == specialityId).Include("User").ToListAsync();
+            var specialists = await _context.Specialists.Where(x => x.User.Active == true && x.SpecialityId == specialityId).Include("User").ToListAsync();
             for (int i = 0; i < specialists.Count; i++)
             {
                 specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
@@ -77,12 +75,60 @@ namespace Notipet.Web.Controllers
         [HttpGet("ByBusiness/{businessId}")]
         public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistsByBusiness(Guid businessId)
         {
-            var specialists = await _context.Specialists.Where(x => x.User.BusinessId == businessId).Include("User").ToListAsync();
+            var specialists = await _context.Specialists.Where(x => x.User.Active == true && x.User.BusinessId == businessId).Include("User").ToListAsync();
             for (int i = 0; i < specialists.Count; i++)
             {
                 specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
             }
             return Ok(new JsendSuccess(await GetSpecialistsDtoAsync(specialists)));
+        }
+
+        [HttpPut("specialist")]
+        public async Task<IActionResult> PutSpecialist(int specialistId, SpecialistSignUpDto specialistDto)
+        {
+            // This needs to reject the password in the User object (prolly new DTO)
+            // We really don't need this much information
+            var specialist = specialistDto.CovertToType();
+            specialist.Id = specialistId;
+            specialist.User.Id = _context.Users.Where(x => x.Username == specialist.User.Username).Select(x => x.Id).FirstOrDefault();
+            _context.Entry(specialist.User).State = EntityState.Modified;
+            _context.Entry(specialist).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SpecialistExists(specialist.Id))
+                {
+                    return NotFound(new JsendFail(new { notFound = "Specialist not found" }));
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(new JsendSuccess(new { }));
+        }
+
+        [HttpDelete()]
+        public async Task<IActionResult> DeleteSpecialist(int specialistId)
+        {
+            var specialist = await _context.Specialists.Where(x => x.Id == specialistId && x.User.Active == true).Include("User").FirstOrDefaultAsync();
+            if (specialist != null)
+            {
+                specialist.User.Active = false;
+                _context.Entry(specialist.User).State = EntityState.Modified;
+                _context.Entry(specialist).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(new { }));
+            }
+            return NotFound(new JsendFail(new { notFound = "Specialist not found" }));
+        }
+
+        private bool SpecialistExists(int id)
+        {
+            return _context.Specialists.Any(e => e.Id == id);
         }
 
         private async Task<List<SpecialistDto>> GetSpecialistsDtoAsync(List<Specialist> specialist)
@@ -102,41 +148,5 @@ namespace Notipet.Web.Controllers
             }
             return specialistsMapped;
         }
-
-        // PUT: api/Specialists/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /*[HttpPut("{id}")]
-        public async Task<IActionResult> PutSpecialist(int id, Specialist specialist)
-        {
-            if (id != specialist.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(specialist).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SpecialistExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        private bool SpecialistExists(int id)
-        {
-            return _context.Specialists.Any(e => e.Id == id);
-        }*/
     }
 }

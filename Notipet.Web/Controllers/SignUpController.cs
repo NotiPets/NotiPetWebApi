@@ -33,38 +33,45 @@ namespace Notipet.Web.Controllers
             var specialist = specialistDto.CovertToType();
             if (specialist.User.Role == RoleId.Specialist)
             {
-                var possibleSpecialist = await _context.Specialists.Where(x => x.User.Username == specialist.User.Username).FirstOrDefaultAsync();
-                if (possibleSpecialist == null)
+                if (_context.Specialities.Any(x => x.Id == specialist.SpecialityId))
                 {
-                    if (DocumentExist(specialist.User.Document))
+                    var possibleSpecialist = await _context.Specialists.Where(x => x.User.Username == specialist.User.Username).FirstOrDefaultAsync();
+                    if (possibleSpecialist == null)
                     {
-                        return Conflict(new JsendFail(new { username = "Document already exist" }));
-                    }
-                    specialist.User.Business = await _context.Businesses.Where(x => x.Id == specialist.User.BusinessId).FirstOrDefaultAsync();
-                    if (specialist.User.Business != null)
-                    {
-                        specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
-                        _context.Specialists.Add(specialist);
-                        await _context.SaveChangesAsync();
-                        var data = (new LoginResponseDto
+                        if (DocumentExist(specialist.User.Document))
                         {
-                            Token = GenerateJwtToken(specialist.User.Username),
-                            Username = specialist.User.Username,
-                            Email = specialist.User.Email,
-                            BusinessId = specialist.User.BusinessId.ToString(),
-                            // Prolly needs to return SpecialistId here
-                            UserId = specialist.User.Id.ToString()
-                        });
-                        return Ok(new JsendSuccess(data));
+                            return Conflict(new JsendFail(new { username = "Document already exist" }));
+                        }
+                        specialist.User.Business = await _context.Businesses.Where(x => x.Id == specialist.User.BusinessId).FirstOrDefaultAsync();
+                        if (specialist.User.Business != null)
+                        {
+                            specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
+                            _context.Specialists.Add(specialist);
+                            await _context.SaveChangesAsync();
+                            var data = (new LoginResponseDto
+                            {
+                                Token = GenerateJwtToken(specialist.User.Username),
+                                Username = specialist.User.Username,
+                                Email = specialist.User.Email,
+                                BusinessId = specialist.User.BusinessId.ToString(),
+                                // Prolly needs to return SpecialistId here
+                                UserId = specialist.User.Id.ToString()
+                            });
+                            return Ok(new JsendSuccess(data));
+                        }
+                        else
+                        {
+                            return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
+                        }
                     }
                     else
                     {
-                        return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
+                        return Conflict(new JsendFail(new { username = "Username already exist" }));
                     }
                 }
                 else
                 {
-                    return Conflict(new JsendFail(new { username = "Username already exist" }));
+                    return BadRequest(new JsendFail(new { specialty = "Specialty doesn't exists" }));
                 }
             }
             else

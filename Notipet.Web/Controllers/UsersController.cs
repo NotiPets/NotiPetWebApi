@@ -61,40 +61,49 @@ namespace Notipet.Web.Controllers
             users.ForEach(x => x.Password = "Ignore");
             return Ok(new JsendSuccess(users));
         }
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /*[HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(Guid id, User user)
+
+        [HttpPut("userId")]
+        public async Task<IActionResult> PutUser(Guid userId, UserDto userDto)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-
+            // This needs to reject the password in the object (prolly new DTO)
+            var user = userDto.CovertToType();
+            user.Id = userId;
             _context.Entry(user).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!UserExists(user.Id))
                 {
-                    return NotFound();
+                    return NotFound(new JsendFail(new { notFound = "User not found" }));
                 }
                 else
                 {
                     throw;
                 }
             }
+            return Ok(new JsendSuccess(new { }));
+        }
 
-            return NoContent();
+        [HttpDelete()]
+        public async Task<IActionResult> DeleteUser(Guid userId)
+        {
+            var user = await _context.Users.Where(x => x.Active == true && x.Id == userId).FirstOrDefaultAsync();
+            if (user != null)
+            {
+                user.Active = false;
+                _context.Entry(user).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(new { }));
+            }
+            return NotFound(new JsendFail(new { notFound = "User not found" }));
         }
 
         private bool UserExists(Guid id)
         {
             return _context.Users.Any(e => e.Id == id);
-        }*/
+        }
     }
 }
