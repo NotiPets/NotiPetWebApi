@@ -15,8 +15,7 @@ namespace Notipet.Data
     {
         public NotiPetBdContext CreateDbContext(string[] args)
         {
-            //var connectionString = Methods.GetConnectionString();
-            var connectionString = "Server=ec2-3-225-79-57.compute-1.amazonaws.com;Port=5432;Database=d7mtmb42b2odvt;User Id=qdfspkpbgyxsfk;Password=3f417b474c41396d2825fbb070167d086d3f769e463a82e6921c5b21441a83f4;";
+            var connectionString = Methods.GetConnectionString();
             var builder = new DbContextOptionsBuilder<NotiPetBdContext>();
             builder.UseNpgsql(connectionString);
             return new NotiPetBdContext(builder.Options);
