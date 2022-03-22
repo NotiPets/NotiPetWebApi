@@ -68,8 +68,8 @@ namespace Notipet.Domain
         public string? Province { get; set; }
 
         [StringLength(2048)]
-        public string PictureUrl { get; set; }
-        public bool Active { get; set; } = true;
+        public string? PictureUrl { get; set; }
+        public bool? Active { get; set; } = true;
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime? Updated { get; set; } = DateTime.Now;
     }

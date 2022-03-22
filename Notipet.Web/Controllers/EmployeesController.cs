@@ -26,22 +26,16 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
-        // GET: api/Employees
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetEmployees()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetEmployees()
         {
             List<User> users = new List<User>();
-            users = await _context.Users.Where(x => x.Role == RoleId.Seller).ToListAsync();
-            foreach (var item in users)
-            {
-                item.Password = "";
-            }
+            users = await _context.Users.Where(x => x.Role == RoleId.Seller && x.Active == true).ToListAsync();
             return Ok(new JsendSuccess(users));
         }
 
-        // GET: api/Employees/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetEmployee(Guid id)
+        public async Task<ActionResult<UserDto>> GetEmployee(Guid id)
         {
             var employee = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id && m.Role == RoleId.Seller);
@@ -50,46 +44,50 @@ namespace Notipet.Web.Controllers
             {
                 return NotFound(new JsendFail(new { credentials = "EMPLOYEE_NOT_FOUND" }));
             }
-
-            employee.Password = "";
             return Ok(new JsendSuccess(employee));
         }
 
-        // PUT: api/Employees/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployee(Guid id, User user)
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<UserDto>> GetEmployeeByBusinessId(Guid businessId)
         {
-            if (id != user.Id)
+            var employee = await _context.Users
+                .FirstOrDefaultAsync(m => m.BusinessId == businessId && m.Role == RoleId.Seller);
+
+            if (employee == null)
             {
-                return BadRequest();
+                return NotFound(new JsendFail(new { credentials = "EMPLOYEE_NOT_FOUND" }));
             }
+            return Ok(new JsendSuccess(employee));
+        }
 
+        [HttpPut]
+        public async Task<IActionResult> PutEmployee(UserDto userDto, Guid userId)
+        {
+            var user = userDto.CovertToType();
+            user.Id = userId;
             _context.Entry(user).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!UserExists(user.Id))
                 {
-                    return NotFound();
+                    return NotFound(new JsendFail(new { notFound = "USER_NOT_FOUND" }));
                 }
                 else
                 {
                     throw;
                 }
             }
-
-            return NoContent();
+            return Ok(new JsendSuccess(new { }));
         }
 
 
         private bool UserExists(Guid id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id == id && e.Role == RoleId.Seller);
         }
     }
 }
