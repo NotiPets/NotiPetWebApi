@@ -76,7 +76,7 @@ namespace Notipet.Web.Controllers
         public async Task<ActionResult<User>> PostClient(UserDto userDto)
         {
             userDto.Role = RoleId.Client;
-            return await PostUser(userDto); 
+            return await PostUser(userDto);
         }
 
         [Route("employee")]
