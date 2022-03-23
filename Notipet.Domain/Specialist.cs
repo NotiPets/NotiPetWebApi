@@ -9,9 +9,9 @@ namespace Notipet.Domain
     public class Specialist
     {
         public Guid Id { get; set; }
-
         public User? User { get; set; }
-
+        public int SpecialityId { get; set; }
+        [NotMapped]
         public Speciality? Speciality { get; set; }
     }
 }

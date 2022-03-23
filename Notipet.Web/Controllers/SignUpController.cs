@@ -27,22 +27,61 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
-        // GET: api/SignUp/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUserRole(Guid id)
+        [HttpPost("Specialist")]
+        public async Task<ActionResult<User>> PostSpecialist(SpecialistSignUpDto specialistDto)
         {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
+            var specialist = specialistDto.CovertToType();
+            if (specialist.User.Role == RoleId.Specialist)
             {
-                return NotFound();
+                if (_context.Specialities.Any(x => x.Id == specialist.SpecialityId))
+                {
+                    var possibleSpecialist = await _context.Specialists.Where(x => x.User.Username == specialist.User.Username).FirstOrDefaultAsync();
+                    if (possibleSpecialist == null)
+                    {
+                        if (DocumentExist(specialist.User.Document))
+                        {
+                            return Conflict(new JsendFail(new { username = "Document already exist" }));
+                        }
+                        specialist.User.Business = await _context.Businesses.Where(x => x.Id == specialist.User.BusinessId).FirstOrDefaultAsync();
+                        if (specialist.User.Business != null)
+                        {
+                            specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
+                            _context.Specialists.Add(specialist);
+                            await _context.SaveChangesAsync();
+                            var data = (new LoginResponseDto
+                            {
+                                Token = GenerateJwtToken(specialist.User.Username),
+                                Username = specialist.User.Username,
+                                Email = specialist.User.Email,
+                                BusinessId = specialist.User.BusinessId.ToString(),
+                                // Prolly needs to return SpecialistId here
+                                UserId = specialist.User.Id.ToString()
+                            });
+                            return Ok(new JsendSuccess(data));
+                        }
+                        else
+                        {
+                            return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
+                        }
+                    }
+                    else
+                    {
+                        return Conflict(new JsendFail(new { username = "Username already exist" }));
+                    }
+                }
+                else
+                {
+                    return BadRequest(new JsendFail(new { specialty = "Specialty doesn't exists" }));
+                }
             }
-
-            return user;
+            else
+            {
+                return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostUserRole(UserDto userDto)
+        public async Task<ActionResult<User>> PostUser(UserDto userDto)
         {
             var user = userDto.CovertToType();
             var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();

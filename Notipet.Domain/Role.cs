@@ -10,7 +10,8 @@ namespace Notipet.Domain
     {
         Client,
         Seller,
-        Admin
+        Admin,
+        Specialist
     }
 
     // This class just exists to create an equivalent table to the above enum
