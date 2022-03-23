@@ -39,6 +39,10 @@ namespace Notipet.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder
+              .Entity<Business>()
+              .HasData(Methods.GetNotipetBusiness());
+
             modelBuilder.Entity<Business>()
               .HasIndex(e => e.Rnc)
               .IsUnique();

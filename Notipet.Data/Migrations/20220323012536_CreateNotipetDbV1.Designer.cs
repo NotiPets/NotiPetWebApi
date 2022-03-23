@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Notipet.Data.Migrations
 {
     [DbContext(typeof(NotiPetBdContext))]
-    [Migration("20220220220803_CreateNotiPetDbV1")]
-    partial class CreateNotiPetDbV1
+    [Migration("20220323012536_CreateNotipetDbV1")]
+    partial class CreateNotipetDbV1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -39,9 +39,6 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("AppointmentStatusId");
 
-                    b.Property<int>("AssetsServicesId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -51,7 +48,7 @@ namespace Notipet.Data.Migrations
                     b.Property<bool>("IsEmergency")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("PetId")
+                    b.Property<Guid>("SpecialistId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("Updated")
@@ -61,9 +58,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("AppointmentStatus");
 
-                    b.HasIndex("AssetsServicesId");
-
-                    b.HasIndex("PetId");
+                    b.HasIndex("SpecialistId");
 
                     b.ToTable("Appointments");
                 });
@@ -115,8 +110,8 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("AssetsServiceTypeId");
 
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -184,9 +179,11 @@ namespace Notipet.Data.Migrations
 
             modelBuilder.Entity("Notipet.Domain.Business", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address1")
                         .IsRequired()
@@ -194,7 +191,6 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Address2")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -213,10 +209,22 @@ namespace Notipet.Data.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
+                    b.Property<double?>("Latitude")
+                        .IsRequired()
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .IsRequired()
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
+
+                    b.Property<string>("PictureUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
 
                     b.Property<string>("Province")
                         .IsRequired()
@@ -234,6 +242,23 @@ namespace Notipet.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Businesses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address1 = "Donde hay un pais en el mundo",
+                            Address2 = "Donde hay un pais en el mundo",
+                            BusinessName = "Notipet",
+                            City = "Santo Domingo",
+                            Email = "notipetapp@gmail.com",
+                            Latitude = 18.487704815310526,
+                            Longitude = -69.930233483114691,
+                            Phone = "8099999999",
+                            PictureUrl = "url",
+                            Province = "Santo Domingo",
+                            Rnc = "Hola"
+                        });
                 });
 
             modelBuilder.Entity("Notipet.Domain.DigitalVaccine", b =>
@@ -242,8 +267,8 @@ namespace Notipet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
@@ -251,7 +276,7 @@ namespace Notipet.Data.Migrations
                     b.Property<Guid>("PetId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserRoleId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("VaccineName")
@@ -265,7 +290,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("PetId");
 
-                    b.HasIndex("UserRoleId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("DigitalVaccines");
                 });
@@ -303,6 +328,9 @@ namespace Notipet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("AppointmentId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("AssetsAssetsServicesId")
                         .HasColumnType("integer");
 
@@ -319,10 +347,12 @@ namespace Notipet.Data.Migrations
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserRoleId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
 
                     b.HasIndex("AssetsAssetsServicesId");
 
@@ -330,7 +360,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("SaleId");
 
-                    b.HasIndex("UserRoleId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -381,16 +411,24 @@ namespace Notipet.Data.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("boolean");
 
-                    b.Property<DateOnly>("Birthdate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Birthdate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Castrated")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("Gender")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasTracker")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -402,21 +440,27 @@ namespace Notipet.Data.Migrations
                         .HasColumnName("PetTypeId");
 
                     b.Property<string>("PictureUrl")
-                        .IsRequired()
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("integer")
+                        .HasColumnName("SizeId");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserRoleId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("Vaccinated")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PetType");
 
-                    b.HasIndex("UserRoleId");
+                    b.HasIndex("Size");
 
                     b.ToTable("Pets");
                 });
@@ -473,14 +517,19 @@ namespace Notipet.Data.Migrations
                     b.Property<int>("RatingNumber")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UserRoleId")
+                    b.Property<Guid?>("SpecialistId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AssetsServicesId");
 
-                    b.HasIndex("UserRoleId");
+                    b.HasIndex("SpecialistId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Ratings");
                 });
@@ -537,11 +586,90 @@ namespace Notipet.Data.Migrations
                     b.ToTable("Sales");
                 });
 
+            modelBuilder.Entity("Notipet.Domain.Size", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Size");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 0,
+                            Name = "Small"
+                        },
+                        new
+                        {
+                            Id = 1,
+                            Name = "Medium"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Large"
+                        });
+                });
+
+            modelBuilder.Entity("Notipet.Domain.Specialist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("SpecialityId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SpecialityId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Specialists");
+                });
+
+            modelBuilder.Entity("Notipet.Domain.Speciality", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Specialities");
+                });
+
             modelBuilder.Entity("Notipet.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Address1")
                         .IsRequired()
@@ -549,9 +677,11 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Address2")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -570,6 +700,11 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("DocumentTypeId");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
                     b.Property<string>("Lastnames")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -580,53 +715,25 @@ namespace Notipet.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
 
+                    b.Property<string>("PictureUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<string>("Province")
                         .IsRequired()
                         .HasMaxLength(25)
                         .HasColumnType("character varying(25)");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Document")
-                        .IsUnique();
-
-                    b.HasIndex("DocumentType");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Notipet.Domain.UserRole", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(320)
-                        .HasColumnType("character varying(320)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer")
@@ -635,9 +742,6 @@ namespace Notipet.Data.Migrations
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -645,13 +749,14 @@ namespace Notipet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BusinessId");
+                    b.HasIndex("Document")
+                        .IsUnique();
+
+                    b.HasIndex("DocumentType");
 
                     b.HasIndex("Role");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserRoles");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Vendor", b =>
@@ -689,21 +794,13 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.AssetsServices", "AssetsServices")
+                    b.HasOne("Notipet.Domain.Specialist", "Specialist")
                         .WithMany()
-                        .HasForeignKey("AssetsServicesId")
+                        .HasForeignKey("SpecialistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.Pet", "Pet")
-                        .WithMany()
-                        .HasForeignKey("PetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AssetsServices");
-
-                    b.Navigation("Pet");
+                    b.Navigation("Specialist");
                 });
 
             modelBuilder.Entity("Notipet.Domain.AssetsServices", b =>
@@ -743,9 +840,9 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.UserRole", "UserRole")
+                    b.HasOne("Notipet.Domain.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserRoleId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -753,11 +850,15 @@ namespace Notipet.Data.Migrations
 
                     b.Navigation("Pet");
 
-                    b.Navigation("UserRole");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Order", b =>
                 {
+                    b.HasOne("Notipet.Domain.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId");
+
                     b.HasOne("Notipet.Domain.AssetsServices", "AssetsAssetsServices")
                         .WithMany()
                         .HasForeignKey("AssetsAssetsServicesId")
@@ -776,17 +877,19 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.UserRole", "UserRole")
+                    b.HasOne("Notipet.Domain.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserRoleId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Appointment");
 
                     b.Navigation("AssetsAssetsServices");
 
                     b.Navigation("Sale");
 
-                    b.Navigation("UserRole");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Pet", b =>
@@ -797,13 +900,11 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.UserRole", "UserRole")
-                        .WithMany()
-                        .HasForeignKey("UserRoleId")
+                    b.HasOne("Notipet.Domain.Size", null)
+                        .WithMany("Pets")
+                        .HasForeignKey("Size")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("UserRole");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Rating", b =>
@@ -814,15 +915,36 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.UserRole", "UserRole")
+                    b.HasOne("Notipet.Domain.Specialist", "Specialist")
                         .WithMany()
-                        .HasForeignKey("UserRoleId")
+                        .HasForeignKey("SpecialistId");
+
+                    b.HasOne("Notipet.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AssetsServices");
 
-                    b.Navigation("UserRole");
+                    b.Navigation("Specialist");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Notipet.Domain.Specialist", b =>
+                {
+                    b.HasOne("Notipet.Domain.Speciality", "Speciality")
+                        .WithMany()
+                        .HasForeignKey("SpecialityId");
+
+                    b.HasOne("Notipet.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Speciality");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.User", b =>
@@ -832,31 +954,12 @@ namespace Notipet.Data.Migrations
                         .HasForeignKey("DocumentType")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Notipet.Domain.UserRole", b =>
-                {
-                    b.HasOne("Notipet.Domain.Business", "Business")
-                        .WithMany()
-                        .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.HasOne("Notipet.Domain.Role", null)
-                        .WithMany("UserRoles")
+                        .WithMany("Users")
                         .HasForeignKey("Role")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Notipet.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Business");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.AppointmentStatus", b =>
@@ -886,7 +989,12 @@ namespace Notipet.Data.Migrations
 
             modelBuilder.Entity("Notipet.Domain.Role", b =>
                 {
-                    b.Navigation("UserRoles");
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Notipet.Domain.Size", b =>
+                {
+                    b.Navigation("Pets");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Vendor", b =>

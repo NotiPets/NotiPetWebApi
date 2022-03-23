@@ -64,7 +64,7 @@ namespace Notipet.Web.Controllers
         // PUT: api/Specialists/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSpecialist(int id, Specialist specialist)
+        public async Task<IActionResult> PutSpecialist(Guid id, Specialist specialist)
         {
             if (id != specialist.Id)
             {
@@ -103,7 +103,7 @@ namespace Notipet.Web.Controllers
             return CreatedAtAction("GetSpecialist", new { id = specialist.Id }, specialist);
         }
 
-        private bool SpecialistExists(int id)
+        private bool SpecialistExists(Guid id)
         {
             return _context.Specialists.Any(e => e.Id == id);
         }

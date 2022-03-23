@@ -8,7 +8,7 @@ namespace Notipet.Domain
 {
     public class Business
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -45,9 +45,9 @@ namespace Notipet.Domain
         public string? PictureUrl { get; set; }
 
         [Required]
-        public float? Latitude { get; set; }
+        public double? Latitude { get; set; }
 
         [Required]
-        public float? Longitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }

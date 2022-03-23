@@ -35,7 +35,7 @@ namespace Notipet.Web.Controllers
         // PUT: api/Businesses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBusiness(Guid id, Business business)
+        public async Task<IActionResult> PutBusiness(int id, Business business)
         {
             if (id != business.Id)
             {
@@ -74,7 +74,7 @@ namespace Notipet.Web.Controllers
             return Ok(new JsendSuccess(business));
         }
 
-        private bool BusinessExists(Guid id)
+        private bool BusinessExists(int id)
         {
             return _context.Businesses.Any(e => e.Id == id);
         }

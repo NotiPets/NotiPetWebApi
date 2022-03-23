@@ -19,7 +19,7 @@ namespace Notipet.Web.DTO
         {
             return new Business()
             {
-                Id = new Guid(),
+                Id = 0,
                 BusinessName = BusinessName,
                 Rnc = Rnc,
                 Phone = Phone,

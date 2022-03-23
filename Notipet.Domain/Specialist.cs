@@ -8,7 +8,7 @@ namespace Notipet.Domain
 {
     public class Specialist
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public User? User { get; set; }
 

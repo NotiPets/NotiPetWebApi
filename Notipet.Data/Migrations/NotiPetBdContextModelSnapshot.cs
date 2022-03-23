@@ -46,8 +46,8 @@ namespace Notipet.Data.Migrations
                     b.Property<bool>("IsEmergency")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("SpecialistId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("SpecialistId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone");
@@ -108,8 +108,8 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("AssetsServiceTypeId");
 
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -177,9 +177,11 @@ namespace Notipet.Data.Migrations
 
             modelBuilder.Entity("Notipet.Domain.Business", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address1")
                         .IsRequired()
@@ -205,13 +207,13 @@ namespace Notipet.Data.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
-                    b.Property<float?>("Latitude")
+                    b.Property<double?>("Latitude")
                         .IsRequired()
-                        .HasColumnType("real");
+                        .HasColumnType("double precision");
 
-                    b.Property<float?>("Longitude")
+                    b.Property<double?>("Longitude")
                         .IsRequired()
-                        .HasColumnType("real");
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -238,6 +240,23 @@ namespace Notipet.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Businesses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address1 = "Donde hay un pais en el mundo",
+                            Address2 = "Donde hay un pais en el mundo",
+                            BusinessName = "Notipet",
+                            City = "Santo Domingo",
+                            Email = "notipetapp@gmail.com",
+                            Latitude = 18.487704815310526,
+                            Longitude = -69.930233483114691,
+                            Phone = "8099999999",
+                            PictureUrl = "url",
+                            Province = "Santo Domingo",
+                            Rnc = "Hola"
+                        });
                 });
 
             modelBuilder.Entity("Notipet.Domain.DigitalVaccine", b =>
@@ -246,8 +265,8 @@ namespace Notipet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
@@ -441,8 +460,6 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("Size");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Pets");
                 });
 
@@ -498,8 +515,8 @@ namespace Notipet.Data.Migrations
                     b.Property<int>("RatingNumber")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("SpecialistId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("SpecialistId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -601,16 +618,14 @@ namespace Notipet.Data.Migrations
 
             modelBuilder.Entity("Notipet.Domain.Specialist", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("SpecialityId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("SpecialityId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -663,8 +678,8 @@ namespace Notipet.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -888,14 +903,6 @@ namespace Notipet.Data.Migrations
                         .HasForeignKey("Size")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Notipet.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Rating", b =>
@@ -927,15 +934,11 @@ namespace Notipet.Data.Migrations
                 {
                     b.HasOne("Notipet.Domain.Speciality", "Speciality")
                         .WithMany()
-                        .HasForeignKey("SpecialityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SpecialityId");
 
                     b.HasOne("Notipet.Domain.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Speciality");
 

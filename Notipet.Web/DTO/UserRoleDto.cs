@@ -6,7 +6,7 @@ namespace Notipet.Web.DTO
     {
         public UserDto? User { get; set; }
         public RoleId Role { get; set; }
-        public Guid BusinessId { get; set; }
+        public int BusinessId { get; set; }
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }

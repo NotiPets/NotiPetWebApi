@@ -15,7 +15,7 @@ namespace Notipet.Domain
         public RoleId Role { get; set; }
 
         [Required]
-        public Guid BusinessId { get; set; }
+        public int BusinessId { get; set; }
 
         [NotMapped]
         public Business? Business { get; set; }
