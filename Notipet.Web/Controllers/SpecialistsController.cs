@@ -66,7 +66,7 @@ namespace Notipet.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSpecialist(Guid id, Specialist specialist)
         {
-            var specialists = await _context.Specialists.Where(x => x.User.Active == true && x.SpecialityId == specialityId).Include("User").ToListAsync();
+            var specialists = await _context.Specialists.Where(x => x.User.Active == true && x.SpecialityId == specialist.SpecialityId).Include("User").ToListAsync();
             for (int i = 0; i < specialists.Count; i++)
             {
                 specialists[i].Speciality = await _context.Specialities.Where(x => x.Id == specialists[i].SpecialityId).FirstOrDefaultAsync();
@@ -75,7 +75,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistsByBusiness(Guid businessId)
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetSpecialistsByBusiness(int businessId)
         {
             var specialists = await _context.Specialists.Where(x => x.User.Active == true && x.User.BusinessId == businessId).Include("User").ToListAsync();
             for (int i = 0; i < specialists.Count; i++)
@@ -86,7 +86,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPut("specialist")]
-        public async Task<IActionResult> PutSpecialist(int specialistId, SpecialistSignUpDto specialistDto)
+        public async Task<IActionResult> PutSpecialist(Guid specialistId, SpecialistSignUpDto specialistDto)
         {
             // This needs to reject the password in the User object (prolly new DTO)
             // We really don't need this much information
@@ -114,7 +114,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpDelete()]
-        public async Task<IActionResult> DeleteSpecialist(int specialistId)
+        public async Task<IActionResult> DeleteSpecialist(Guid specialistId)
         {
             var specialist = await _context.Specialists.Where(x => x.Id == specialistId && x.User.Active == true).Include("User").FirstOrDefaultAsync();
             if (specialist != null)

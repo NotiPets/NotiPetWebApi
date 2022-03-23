@@ -281,16 +281,11 @@ namespace Notipet.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    SpecialityId = table.Column<int>(type: "integer", nullable: true)
+                    SpecialityId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Specialists", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Specialists_Specialities_SpecialityId",
-                        column: x => x.SpecialityId,
-                        principalTable: "Specialities",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Specialists_Users_UserId",
                         column: x => x.UserId,
@@ -505,7 +500,8 @@ namespace Notipet.Data.Migrations
                 {
                     { 0, "Client" },
                     { 1, "Seller" },
-                    { 2, "Admin" }
+                    { 2, "Admin" },
+                    { 3, "Specialist" }
                 });
 
             migrationBuilder.InsertData(
@@ -624,11 +620,6 @@ namespace Notipet.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Specialists_SpecialityId",
-                table: "Specialists",
-                column: "SpecialityId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Specialists_UserId",
                 table: "Specialists",
                 column: "UserId");
@@ -660,6 +651,9 @@ namespace Notipet.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Ratings");
+
+            migrationBuilder.DropTable(
+                name: "Specialities");
 
             migrationBuilder.DropTable(
                 name: "Pets");
@@ -696,9 +690,6 @@ namespace Notipet.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Vendor");
-
-            migrationBuilder.DropTable(
-                name: "Specialities");
 
             migrationBuilder.DropTable(
                 name: "Users");

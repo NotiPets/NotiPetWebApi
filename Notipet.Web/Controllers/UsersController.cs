@@ -55,7 +55,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<IEnumerable<Specialist>>> GetUsersByBusiness(Guid businessId)
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetUsersByBusiness(int businessId)
         {
             var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.BusinessId == businessId).ToListAsync();
             users.ForEach(x => x.Password = "Ignore");
