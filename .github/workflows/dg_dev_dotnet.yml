@@ -4,6 +4,7 @@ on:
   push:
     branches: 
     - 'dg/feature/**'
+  workflow_dispatch:
 
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
