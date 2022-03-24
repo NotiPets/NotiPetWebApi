@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Notipet.Data.Migrations
 {
-    public partial class CreateNotiPetDbV1 : Migration
+    public partial class CreateNotipetDbV1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -38,15 +38,19 @@ namespace Notipet.Data.Migrations
                 name: "Businesses",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BusinessName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Rnc = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     Phone = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
                     Email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
                     Address1 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Address2 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Address2 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     City = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
-                    Province = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false)
+                    Province = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    PictureUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    Latitude = table.Column<double>(type: "double precision", nullable: false),
+                    Longitude = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -116,6 +120,32 @@ namespace Notipet.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Size",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Size", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Specialities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Description = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Specialities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Vendor",
                 columns: table => new
                 {
@@ -132,15 +162,22 @@ namespace Notipet.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<int>(type: "integer", nullable: false),
+                    BusinessId = table.Column<int>(type: "integer", nullable: false),
+                    Username = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Password = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
                     DocumentTypeId = table.Column<int>(type: "integer", nullable: false),
                     Document = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
                     Names = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     Lastnames = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     Phone = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
                     Address1 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Address2 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Address2 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     City = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
                     Province = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    PictureUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
+                    Active = table.Column<bool>(type: "boolean", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -151,6 +188,49 @@ namespace Notipet.Data.Migrations
                         name: "FK_Users_DocumentType_DocumentTypeId",
                         column: x => x.DocumentTypeId,
                         principalTable: "DocumentType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Users_Role_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Role",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Pets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    PetTypeId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SizeId = table.Column<int>(type: "integer", nullable: false),
+                    Active = table.Column<bool>(type: "boolean", nullable: false),
+                    PictureUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    Description = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Gender = table.Column<bool>(type: "boolean", nullable: false),
+                    Vaccinated = table.Column<bool>(type: "boolean", nullable: false),
+                    Castrated = table.Column<bool>(type: "boolean", nullable: false),
+                    HasTracker = table.Column<bool>(type: "boolean", nullable: false),
+                    Birthdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Pets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Pets_PetType_PetTypeId",
+                        column: x => x.PetTypeId,
+                        principalTable: "PetType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Pets_Size_SizeId",
+                        column: x => x.SizeId,
+                        principalTable: "Size",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -168,7 +248,7 @@ namespace Notipet.Data.Migrations
                     VendorId = table.Column<int>(type: "integer", nullable: false),
                     Active = table.Column<bool>(type: "boolean", nullable: false),
                     AssetsServiceTypeId = table.Column<int>(type: "integer", nullable: false),
-                    BusinessId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BusinessId = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -196,179 +276,21 @@ namespace Notipet.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
+                name: "Specialists",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false),
-                    BusinessId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Active = table.Column<bool>(type: "boolean", nullable: false),
-                    Username = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    Password = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SpecialityId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoles", x => x.Id);
+                    table.PrimaryKey("PK_Specialists", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserRoles_Businesses_BusinessId",
-                        column: x => x.BusinessId,
-                        principalTable: "Businesses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Role_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Role",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Users_UserId",
+                        name: "FK_Specialists_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserRoleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssetsAssetsServicesId = table.Column<int>(type: "integer", nullable: false),
-                    SaleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
-                    OrderStatusId = table.Column<int>(type: "integer", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Orders_AssetsServices_AssetsAssetsServicesId",
-                        column: x => x.AssetsAssetsServicesId,
-                        principalTable: "AssetsServices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Orders_OrderStatus_OrderStatusId",
-                        column: x => x.OrderStatusId,
-                        principalTable: "OrderStatus",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Orders_Sales_SaleId",
-                        column: x => x.SaleId,
-                        principalTable: "Sales",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Orders_UserRoles_UserRoleId",
-                        column: x => x.UserRoleId,
-                        principalTable: "UserRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Pets",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    PetTypeId = table.Column<int>(type: "integer", nullable: false),
-                    UserRoleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Active = table.Column<bool>(type: "boolean", nullable: false),
-                    PictureUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
-                    Description = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Birthdate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Pets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Pets_PetType_PetTypeId",
-                        column: x => x.PetTypeId,
-                        principalTable: "PetType",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Pets_UserRoles_UserRoleId",
-                        column: x => x.UserRoleId,
-                        principalTable: "UserRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Ratings",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserRoleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssetsServicesId = table.Column<int>(type: "integer", nullable: false),
-                    RatingNumber = table.Column<int>(type: "integer", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Ratings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Ratings_AssetsServices_AssetsServicesId",
-                        column: x => x.AssetsServicesId,
-                        principalTable: "AssetsServices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Ratings_UserRoles_UserRoleId",
-                        column: x => x.UserRoleId,
-                        principalTable: "UserRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Appointments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PetId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssetsServicesId = table.Column<int>(type: "integer", nullable: false),
-                    AppointmentStatusId = table.Column<int>(type: "integer", nullable: false),
-                    IsEmergency = table.Column<bool>(type: "boolean", nullable: false),
-                    Active = table.Column<bool>(type: "boolean", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Appointments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Appointments_AppointmentStatus_AppointmentStatusId",
-                        column: x => x.AppointmentStatusId,
-                        principalTable: "AppointmentStatus",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_AssetsServices_AssetsServicesId",
-                        column: x => x.AssetsServicesId,
-                        principalTable: "AssetsServices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Pets_PetId",
-                        column: x => x.PetId,
-                        principalTable: "Pets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -377,8 +299,8 @@ namespace Notipet.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     PetId = table.Column<Guid>(type: "uuid", nullable: false),
-                    BusinessId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserRoleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BusinessId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     VaccineName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -398,9 +320,120 @@ namespace Notipet.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DigitalVaccines_UserRoles_UserRoleId",
-                        column: x => x.UserRoleId,
-                        principalTable: "UserRoles",
+                        name: "FK_DigitalVaccines_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Appointments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SpecialistId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AppointmentStatusId = table.Column<int>(type: "integer", nullable: false),
+                    IsEmergency = table.Column<bool>(type: "boolean", nullable: false),
+                    Active = table.Column<bool>(type: "boolean", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Appointments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Appointments_AppointmentStatus_AppointmentStatusId",
+                        column: x => x.AppointmentStatusId,
+                        principalTable: "AppointmentStatus",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Specialists_SpecialistId",
+                        column: x => x.SpecialistId,
+                        principalTable: "Specialists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Ratings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SpecialistId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssetsServicesId = table.Column<int>(type: "integer", nullable: false),
+                    RatingNumber = table.Column<int>(type: "integer", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ratings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Ratings_AssetsServices_AssetsServicesId",
+                        column: x => x.AssetsServicesId,
+                        principalTable: "AssetsServices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Ratings_Specialists_SpecialistId",
+                        column: x => x.SpecialistId,
+                        principalTable: "Specialists",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Ratings_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssetsAssetsServicesId = table.Column<int>(type: "integer", nullable: false),
+                    AppointmentId = table.Column<int>(type: "integer", nullable: true),
+                    SaleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    OrderStatusId = table.Column<int>(type: "integer", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_Appointments_AppointmentId",
+                        column: x => x.AppointmentId,
+                        principalTable: "Appointments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Orders_AssetsServices_AssetsAssetsServicesId",
+                        column: x => x.AssetsAssetsServicesId,
+                        principalTable: "AssetsServices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_OrderStatus_OrderStatusId",
+                        column: x => x.OrderStatusId,
+                        principalTable: "OrderStatus",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_Sales_SaleId",
+                        column: x => x.SaleId,
+                        principalTable: "Sales",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -423,6 +456,11 @@ namespace Notipet.Data.Migrations
                     { 0, "Product" },
                     { 1, "Service" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Businesses",
+                columns: new[] { "Id", "Address1", "Address2", "BusinessName", "City", "Email", "Latitude", "Longitude", "Phone", "PictureUrl", "Province", "Rnc" },
+                values: new object[] { 1, "Donde hay un pais en el mundo", "Donde hay un pais en el mundo", "Notipet", "Santo Domingo", "notipetapp@gmail.com", 18.487704815310526, -69.930233483114691, "8099999999", "url", "Santo Domingo", "Hola" });
 
             migrationBuilder.InsertData(
                 table: "DocumentType",
@@ -462,7 +500,18 @@ namespace Notipet.Data.Migrations
                 {
                     { 0, "Client" },
                     { 1, "Seller" },
-                    { 2, "Admin" }
+                    { 2, "Admin" },
+                    { 3, "Specialist" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Size",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 0, "Small" },
+                    { 1, "Medium" },
+                    { 2, "Large" }
                 });
 
             migrationBuilder.InsertData(
@@ -480,14 +529,9 @@ namespace Notipet.Data.Migrations
                 column: "AppointmentStatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_AssetsServicesId",
+                name: "IX_Appointments_SpecialistId",
                 table: "Appointments",
-                column: "AssetsServicesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Appointments_PetId",
-                table: "Appointments",
-                column: "PetId");
+                column: "SpecialistId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AssetsServices_AssetsServiceTypeId",
@@ -521,9 +565,14 @@ namespace Notipet.Data.Migrations
                 column: "PetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DigitalVaccines_UserRoleId",
+                name: "IX_DigitalVaccines_UserId",
                 table: "DigitalVaccines",
-                column: "UserRoleId");
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_AppointmentId",
+                table: "Orders",
+                column: "AppointmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_AssetsAssetsServicesId",
@@ -541,9 +590,9 @@ namespace Notipet.Data.Migrations
                 column: "SaleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_UserRoleId",
+                name: "IX_Orders_UserId",
                 table: "Orders",
-                column: "UserRoleId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pets_PetTypeId",
@@ -551,9 +600,9 @@ namespace Notipet.Data.Migrations
                 column: "PetTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pets_UserRoleId",
+                name: "IX_Pets_SizeId",
                 table: "Pets",
-                column: "UserRoleId");
+                column: "SizeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ratings_AssetsServicesId",
@@ -561,23 +610,18 @@ namespace Notipet.Data.Migrations
                 column: "AssetsServicesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ratings_UserRoleId",
+                name: "IX_Ratings_SpecialistId",
                 table: "Ratings",
-                column: "UserRoleId");
+                column: "SpecialistId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_BusinessId",
-                table: "UserRoles",
-                column: "BusinessId");
+                name: "IX_Ratings_UserId",
+                table: "Ratings",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_RoleId",
-                table: "UserRoles",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserId",
-                table: "UserRoles",
+                name: "IX_Specialists_UserId",
+                table: "Specialists",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -590,13 +634,15 @@ namespace Notipet.Data.Migrations
                 name: "IX_Users_DocumentTypeId",
                 table: "Users",
                 column: "DocumentTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RoleId",
+                table: "Users",
+                column: "RoleId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Appointments");
-
             migrationBuilder.DropTable(
                 name: "DigitalVaccines");
 
@@ -607,10 +653,13 @@ namespace Notipet.Data.Migrations
                 name: "Ratings");
 
             migrationBuilder.DropTable(
-                name: "AppointmentStatus");
+                name: "Specialities");
 
             migrationBuilder.DropTable(
                 name: "Pets");
+
+            migrationBuilder.DropTable(
+                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "OrderStatus");
@@ -625,25 +674,31 @@ namespace Notipet.Data.Migrations
                 name: "PetType");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
+                name: "Size");
+
+            migrationBuilder.DropTable(
+                name: "AppointmentStatus");
+
+            migrationBuilder.DropTable(
+                name: "Specialists");
 
             migrationBuilder.DropTable(
                 name: "AssetsServiceType");
 
             migrationBuilder.DropTable(
-                name: "Vendor");
-
-            migrationBuilder.DropTable(
                 name: "Businesses");
 
             migrationBuilder.DropTable(
-                name: "Role");
+                name: "Vendor");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
                 name: "DocumentType");
+
+            migrationBuilder.DropTable(
+                name: "Role");
         }
     }
 }
