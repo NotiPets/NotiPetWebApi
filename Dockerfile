@@ -12,11 +12,11 @@ COPY . .
 RUN dotnet restore "Notipet.Web/Notipet.Web.csproj"
 COPY . .
 WORKDIR "/src/Notipet.Web"
-RUN dotnet build "Notipet.Web.csproj" -c Release -o /app/build -r linux-x64 --self-contained false
+RUN dotnet build "Notipet.Web.csproj" -c Release -o /app/build 
 
 FROM build AS publish
 WORKDIR "/src/Notipet.Web"
-RUN dotnet publish "Notipet.Web.csproj" -c Release -o /app/publish -r linux-x64 --self-contained false
+RUN dotnet publish "Notipet.Web.csproj" -c Release -o /app/publish 
 
 FROM base AS final
 WORKDIR /app

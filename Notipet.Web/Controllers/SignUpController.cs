@@ -1,12 +1,4 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
@@ -81,7 +73,28 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(UserDto userDto)
+        public async Task<ActionResult<User>> PostClient(UserDto userDto)
+        {
+            userDto.Role = RoleId.Client;
+            return await PostUser(userDto);
+        }
+
+        [Route("employee")]
+        [HttpPost]
+        public async Task<ActionResult<User>> PostEmployee(UserDto userDto)
+        {
+            userDto.Role = RoleId.Seller;
+            return await PostUser(userDto);
+        }
+
+        private bool DocumentExist(string doc)
+        {
+            if (doc == null)
+                return false;
+            return _context.Users.Any(e => e.Document == doc);
+        }
+
+        private async Task<ActionResult<User>> PostUser(UserDto userDto)
         {
             var user = userDto.CovertToType();
             var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
@@ -89,7 +102,7 @@ namespace Notipet.Web.Controllers
             {
                 if (DocumentExist(user.Document))
                 {
-                    return Conflict(new JsendFail(new { username = "Document already exist" }));
+                    return Conflict(new JsendFail(new { username = "DOCUMENT_ALREADY_EXISTS" }));
                 }
                 user.Business = await _context.Businesses.Where(x => x.Id == user.BusinessId).FirstOrDefaultAsync();
                 if (user.Business != null)
@@ -109,19 +122,13 @@ namespace Notipet.Web.Controllers
                 }
                 else
                 {
-                    return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
+                    return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
                 }
             }
             else
             {
-                return Conflict(new JsendFail(new { username = "Username already exist" }));
+                return Conflict(new JsendFail(new { username = "USERNAME_ALREADY_EXISTS" }));
             }
-        }
-        private bool DocumentExist(string doc)
-        {
-            if (doc == null)
-                return false;
-            return _context.Users.Any(e => e.Document == doc);
         }
     }
 }
