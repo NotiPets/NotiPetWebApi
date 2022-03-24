@@ -36,7 +36,7 @@ namespace Utilities
             }
             else
             {
-                throw new Exception("No connection string");
+                throw new Exception("No connection string ");
             }
         }
 
