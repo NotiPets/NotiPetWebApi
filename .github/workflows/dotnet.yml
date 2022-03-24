@@ -1,20 +1,9 @@
 name: .NET
 
-# The point here is to always check format and tests on every push
-# and also on PRs to main or production, without double triggering
-# after acepting the PR
-
 on:
   push:
     branches:
     - '**'
-    - '!main'
-    - '!production'
-    
-  pull_request:
-    branches:
-    - main
-    - production
 
 jobs:
   build:
