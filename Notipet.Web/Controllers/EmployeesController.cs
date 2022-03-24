@@ -48,7 +48,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<UserDto>> GetEmployeeByBusinessId(Guid businessId)
+        public async Task<ActionResult<UserDto>> GetEmployeeByBusinessId(int businessId)
         {
             var employee = await _context.Users
                 .FirstOrDefaultAsync(m => m.BusinessId == businessId && m.Role == RoleId.Seller);
