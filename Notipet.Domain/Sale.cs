@@ -10,7 +10,8 @@ namespace Notipet.Domain
     {
         public Guid Id { get; set; }
         public decimal Total { get; set; } = 0;
-        public DateTime Created { get; set; } = DateTime.Now;
-        public DateTime? Updated { get; set; } = DateTime.Now;
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+        public DateTime? Updated { get; set; } = DateTime.UtcNow;
+        public ICollection<Order> Orders { get; set; }
     }
 }

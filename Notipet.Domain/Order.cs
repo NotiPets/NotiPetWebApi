@@ -11,26 +11,26 @@ namespace Notipet.Domain
         public Guid Id { get; set; }
 
         [Required]
-        [Column("UserRoleId")]
+        public Guid UserId { get; set; }
+
+        [NotMapped]
         public User User { get; set; }
 
         [Required]
-        [Column("AssetsServicesId")]
-        public AssetsServices? AssetsAssetsServices { get; set; }
+        public int? AssetsServicesId { get; set; } = null;
+
+        [NotMapped]
+        public AssetsServices? AssetsServices { get; set; }
 
         [Column("AppointmentId")]
         public Appointment? Appointment { get; set; }
-
-        [Required]
-        [Column("SaleId")]
-        public Sale? Sale { get; set; }
 
         [Required]
         public int Quantity { get; set; }
 
         [Required]
         [Column("OrderStatusId")]
-        public OrderStatusId OrderStatus { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
+        public OrderStatusId OrderStatus { get; set; } = OrderStatusId.Created;
+        public DateTime Created { get; set; } = DateTime.UtcNow;
     }
 }

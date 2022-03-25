@@ -8,20 +8,23 @@ namespace Notipet.Domain
 {
     public class Appointment
     {
-        public int Id { get; set; }
+        // This needs to be a Guid
+        public Guid Id { get; set; }
 
         [Required]
-        [Column("SpecialistId")]
+        public Guid SpecialistId { get; set; }
+
+        [NotMapped]
         public Specialist Specialist { get; set; }
 
         [Required]
         [Column("AppointmentStatusId")]
-        public AppointmentStatusId AppointmentStatus { get; set; }
+        public AppointmentStatusId AppointmentStatus { get; set; } = AppointmentStatusId.Requested;
         public bool IsEmergency { get; set; } = false;
         public bool Active { get; set; } = true;
         [Required]
         public DateTime Date { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
-        public DateTime? Updated { get; set; } = DateTime.Now;
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+        public DateTime? Updated { get; set; } = DateTime.UtcNow;
     }
 }
