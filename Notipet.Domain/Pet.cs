@@ -18,6 +18,7 @@ namespace Notipet.Domain
         [Column("PetTypeId")]
         public PetTypeId PetType { get; set; }
 
+        // Maybe change all of this to Owner
         [Required]
         public Guid UserId { get; set; }
 
@@ -43,7 +44,7 @@ namespace Notipet.Domain
         public bool Castrated { get; set; } = false;
         public bool HasTracker { get; set; } = false;
         public DateTime Birthdate { get; set; }
-        public DateTime Created { get; set; } = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
-        public DateTime? Updated { get; set; } = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+        public DateTime? Updated { get; set; } = DateTime.UtcNow;
     }
 }

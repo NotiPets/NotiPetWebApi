@@ -2,7 +2,7 @@
 
 namespace Notipet.Web.DTO
 {
-    public class OrderDto
+    public class OrderDto : IConvertToType<Order>
     {
         public Guid UserId { get; set; }
         public int AssetsServicesId { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Notipet.Web.DTO
 {
-    public class SaleDto
+    public class SaleDto : IConvertToType<Sale>
     {
         public ICollection<OrderDto> Orders { get; set; }
         public Sale ConvertToType()
