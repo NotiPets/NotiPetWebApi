@@ -176,8 +176,8 @@ namespace Notipet.Data.Migrations
                     Address2 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     City = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
                     Province = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
-                    PictureUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
-                    Active = table.Column<bool>(type: "boolean", nullable: false),
+                    PictureUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    Active = table.Column<bool>(type: "boolean", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -331,8 +331,7 @@ namespace Notipet.Data.Migrations
                 name: "Appointments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SpecialistId = table.Column<Guid>(type: "uuid", nullable: false),
                     AppointmentStatusId = table.Column<int>(type: "integer", nullable: false),
                     IsEmergency = table.Column<bool>(type: "boolean", nullable: false),
@@ -397,12 +396,12 @@ namespace Notipet.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssetsAssetsServicesId = table.Column<int>(type: "integer", nullable: false),
-                    AppointmentId = table.Column<int>(type: "integer", nullable: true),
-                    SaleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssetsServicesId = table.Column<int>(type: "integer", nullable: false),
+                    AppointmentId = table.Column<Guid>(type: "uuid", nullable: true),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
                     OrderStatusId = table.Column<int>(type: "integer", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SaleId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -413,12 +412,6 @@ namespace Notipet.Data.Migrations
                         principalTable: "Appointments",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Orders_AssetsServices_AssetsAssetsServicesId",
-                        column: x => x.AssetsAssetsServicesId,
-                        principalTable: "AssetsServices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Orders_OrderStatus_OrderStatusId",
                         column: x => x.OrderStatusId,
                         principalTable: "OrderStatus",
@@ -428,8 +421,7 @@ namespace Notipet.Data.Migrations
                         name: "FK_Orders_Sales_SaleId",
                         column: x => x.SaleId,
                         principalTable: "Sales",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Orders_Users_UserId",
                         column: x => x.UserId,
@@ -573,11 +565,6 @@ namespace Notipet.Data.Migrations
                 name: "IX_Orders_AppointmentId",
                 table: "Orders",
                 column: "AppointmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_AssetsAssetsServicesId",
-                table: "Orders",
-                column: "AssetsAssetsServicesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_OrderStatusId",

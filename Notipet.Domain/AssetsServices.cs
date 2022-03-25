@@ -18,6 +18,8 @@ namespace Notipet.Domain
         [StringLength(300)]
         public string? Description { get; set; }
         public decimal Price { get; set; } = 0;
+
+        // TODO: change this to Stock
         public int Quantity { get; set; } = 0;
 
         [Column("VendorId")]
@@ -29,9 +31,11 @@ namespace Notipet.Domain
         public AssetsServiceTypeId AssetsServiceType { get; set; }
 
         [Required]
-        [Column("BusinessId")]
+        public int BusinessId { get; set; }
+
+        [NotMapped]
         public Business? Business { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
-        public DateTime? Updated { get; set; } = DateTime.Now;
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+        public DateTime? Updated { get; set; } = DateTime.UtcNow;
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Notipet.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Notipet.Data.Migrations
 {
     [DbContext(typeof(NotiPetBdContext))]
-    partial class NotiPetBdContextModelSnapshot : ModelSnapshot
+    [Migration("20220325044555_CreateNotipetDbV3")]
+    partial class CreateNotipetDbV3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,6 +138,8 @@ namespace Notipet.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssetsServiceType");
+
+                    b.HasIndex("BusinessId");
 
                     b.HasIndex("Vendor");
 
@@ -793,11 +797,19 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Notipet.Domain.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Notipet.Domain.Vendor", null)
                         .WithMany("AssetsServices")
                         .HasForeignKey("Vendor")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("Notipet.Domain.DigitalVaccine", b =>
