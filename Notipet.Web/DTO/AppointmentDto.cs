@@ -2,7 +2,7 @@
 
 namespace Notipet.Web.DTO
 {
-    public class AppointmentDto
+    public class AppointmentDto : IConvertToType<Appointment>
     {
         public Guid SpecialistId { get; set; }
         public bool IsEmergency { get; set; }

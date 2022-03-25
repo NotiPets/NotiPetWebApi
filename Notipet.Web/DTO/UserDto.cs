@@ -2,7 +2,7 @@
 
 namespace Notipet.Web.DTO
 {
-    public class UserDto
+    public class UserDto : IConvertToType<User>
     {
         public DocumentTypeId DocumentType { get; set; }
         public string? Document { get; set; }
@@ -20,7 +20,7 @@ namespace Notipet.Web.DTO
         public string? Email { get; set; }
         public string? PictureUrl { get; set; }
 
-        public User CovertToType()
+        public User ConvertToType()
         {
             return new User()
             {

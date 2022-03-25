@@ -20,9 +20,9 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPost("Specialist")]
-        public async Task<ActionResult<User>> PostSpecialist(SpecialistSignUpDto specialistDto)
+        public async Task<ActionResult<User>> PostSpecialist(SpecialistDto specialistDto)
         {
-            var specialist = specialistDto.CovertToType();
+            var specialist = specialistDto.ConvertToType();
             if (specialist.User.Role == RoleId.Specialist)
             {
                 if (_context.Specialities.Any(x => x.Id == specialist.SpecialityId))
@@ -40,16 +40,12 @@ namespace Notipet.Web.Controllers
                             specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
                             _context.Specialists.Add(specialist);
                             await _context.SaveChangesAsync();
-                            var data = (new LoginResponseDto
+                            specialist.User.Password = null;
+                            return Ok(new JsendSuccess(new
                             {
-                                Token = GenerateJwtToken(specialist.User.Username),
-                                Username = specialist.User.Username,
-                                Email = specialist.User.Email,
-                                BusinessId = specialist.User.BusinessId.ToString(),
-                                // Prolly needs to return SpecialistId here
-                                UserId = specialist.User.Id.ToString()
-                            });
-                            return Ok(new JsendSuccess(data));
+                                jwt = GenerateJwtToken(specialist.User.Username),
+                                specialist = specialist
+                            }));
                         }
                         else
                         {
@@ -75,7 +71,7 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostClient(UserDto userDto)
         {
-            var user = userDto.CovertToType();
+            var user = userDto.ConvertToType();
             if (user.Role == RoleId.Client)
             {
                 user.BusinessId = 1;
@@ -93,15 +89,12 @@ namespace Notipet.Web.Controllers
                     user.Password = Methods.ComputeSha256Hash(user.Password);
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    var data = (new LoginResponseDto
+                    user.Password = null;
+                    return Ok(new JsendSuccess(new
                     {
-                        Token = GenerateJwtToken(user.Username),
-                        Username = user.Username,
-                        Email = user.Email,
-                        BusinessId = user.BusinessId.ToString(),
-                        UserId = user.Id.ToString()
-                    });
-                    return Ok(new JsendSuccess(data));
+                        jwt = GenerateJwtToken(user.Username),
+                        user = user
+                    }));
                 }
                 else
                 {

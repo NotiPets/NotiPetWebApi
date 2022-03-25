@@ -2,7 +2,7 @@
 
 namespace Notipet.Web.DTO
 {
-    public class AssetServiceDto
+    public class AssetServiceDto : IConvertToType<AssetsServices>
     {
         public string? Name { get; set; }
         public string? Description { get; set; }

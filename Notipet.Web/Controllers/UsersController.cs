@@ -66,7 +66,7 @@ namespace Notipet.Web.Controllers
         public async Task<IActionResult> PutUser(Guid userId, UserDto userDto)
         {
             // This needs to reject the password in the object (prolly new DTO)
-            var user = userDto.CovertToType();
+            var user = userDto.ConvertToType();
             user.Id = userId;
             _context.Entry(user).State = EntityState.Modified;
             try

@@ -33,16 +33,14 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Pets/5
         [HttpGet("{UserId}")]
-        public async Task<ActionResult<PetDto2>> GetPet(Guid UserId)
+        public async Task<ActionResult<Pet>> GetPet(Guid UserId)
         {
             var pet = await _context.Pets.Where(x => x.UserId == UserId).FirstOrDefaultAsync();
             if (pet == null)
             {
                 return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
             }
-            PetDto2 p2 = PetDto2.Map(pet);
-
-            return Ok(new JsendSuccess(p2));
+            return Ok(new JsendSuccess(pet));
         }
 
         // PUT: api/Pets/5
@@ -81,7 +79,7 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<PetDto>> PostPet(PetDto petdto)
         {
-            var pet = petdto.ToPet();
+            var pet = petdto.ConvertToType();
             _context.Pets.Add(pet);
             await _context.SaveChangesAsync();
 

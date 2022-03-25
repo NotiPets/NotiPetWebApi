@@ -20,7 +20,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<LoginResponseDto>> LogIn(LoginDto login)
+        public async Task<ActionResult<LoginDto>> LogIn(LoginDto login)
         {
             login.Password = Methods.ComputeSha256Hash(login.Password);
             User search = new User();
@@ -30,15 +30,13 @@ namespace Notipet.Web.Controllers
 
             if (search != null)
             {
-                var data = (new LoginResponseDto
+                search.Password = null;
+                return Ok(new JsendSuccess(new
                 {
-                    Token = GenerateJwtToken(search.Username),
-                    Username = search.Username,
-                    Email = search.Email,
-                    BusinessId = search.BusinessId.ToString(),
-                    UserId = search.Id.ToString()
-                });
-                return Ok(new JsendSuccess(data));
+                    jwt = GenerateJwtToken(search.Username),
+                    user = search,
+
+                }));
             }
             else
             {
