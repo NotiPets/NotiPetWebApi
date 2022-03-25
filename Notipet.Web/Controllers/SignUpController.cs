@@ -75,28 +75,11 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostClient(UserDto userDto)
         {
-            userDto.Role = RoleId.Client;
-            return await PostUser(userDto);
-        }
-
-        [Route("employee")]
-        [HttpPost]
-        public async Task<ActionResult<User>> PostEmployee(UserDto userDto)
-        {
-            userDto.Role = RoleId.Seller;
-            return await PostUser(userDto);
-        }
-
-        private bool DocumentExist(string doc)
-        {
-            if (doc == null)
-                return false;
-            return _context.Users.Any(e => e.Document == doc);
-        }
-
-        private async Task<ActionResult<User>> PostUser(UserDto userDto)
-        {
             var user = userDto.CovertToType();
+            if (user.Role == RoleId.Client)
+            {
+                user.BusinessId = 1;
+            }
             var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
             if (possibleUser == null)
             {
@@ -129,6 +112,13 @@ namespace Notipet.Web.Controllers
             {
                 return Conflict(new JsendFail(new { username = "USERNAME_ALREADY_EXISTS" }));
             }
+        }
+
+        private bool DocumentExist(string doc)
+        {
+            if (doc == null)
+                return false;
+            return _context.Users.Any(e => e.Document == doc);
         }
     }
 }
