@@ -29,11 +29,11 @@ namespace Notipet.Web.Controllers
         public async Task<ActionResult<JsendWrapper>> GetUser(string username)
         {
             var user = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
-            user.Password = "Ignore";
             if (user == null)
             {
                 return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
             }
+            user.Password = "Ignore";
 
             return Ok(new JsendSuccess(user));
         }
@@ -45,6 +45,8 @@ namespace Notipet.Web.Controllers
             if (RoleId.Specialist != role)
             {
                 var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist).ToListAsync();
+                if (users == null)
+                    return Ok(new JsendSuccess(users));
                 users.ForEach(x => x.Password = "Ignore");
                 return Ok(new JsendSuccess(users));
             }
@@ -63,26 +65,25 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPut("userId")]
-        public async Task<IActionResult> PutUser(Guid userId, UserDto userDto)
+        public async Task<IActionResult> PutUser(Guid userId, UserDtoPut userDto)
         {
             // This needs to reject the password in the object (prolly new DTO)
-            var user = userDto.ConvertToType();
+            var user1 = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+            if (!UserExists(userId))
+            {
+                return NotFound(new JsendFail(new { notFound = "User not found" }));
+            }
+            var user = userDto.ConvertToType(user1.Password.ToString());
             user.Id = userId;
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Users.Update(user);
+
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(user.Id))
-                {
-                    return NotFound(new JsendFail(new { notFound = "User not found" }));
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
             return Ok(new JsendSuccess(new { }));
         }
