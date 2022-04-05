@@ -1,9 +1,10 @@
-name: Deploy Production .NET
+name: DG dev .NET
 
 on:
   push:
-    branches:
-    - production
+    branches: 
+    - 'dg/feature/**'
+  workflow_dispatch:
 
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
@@ -12,7 +13,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: notipet-web-api
+    environment: notipet-dg-dev
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -22,7 +23,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --no-restore
     - name: Docker build
       run: docker login -u=_ -p=$HEROKU_API_KEY registry.heroku.com
     - name: Publish

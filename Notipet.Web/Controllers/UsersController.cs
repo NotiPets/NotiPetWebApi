@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
+using Notipet.Web.DTO;
 
 namespace Notipet.Web.Controllers
 {
@@ -23,38 +24,58 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-        {
-            return await _context.Users.ToListAsync();
-        }
-
         // GET: api/Users/5
         [HttpGet("{username}")]
-        public async Task<ActionResult<User>> GetUser(string username)
+        public async Task<ActionResult<JsendWrapper>> GetUser(string username)
         {
-            var user = await _context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
-            user.Password = "Ignore";
+            var user = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
             if (user == null)
             {
                 return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
             }
+            user.Password = "Ignore";
 
             return Ok(new JsendSuccess(user));
         }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(Guid id, User user)
+        // GET: api/Users
+        [HttpGet("ByRole/{role}")]
+        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetUsersByRole(RoleId role)
         {
-            if (id != user.Id)
+            if (RoleId.Specialist != role)
             {
-                return BadRequest();
+                var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist).ToListAsync();
+                if (users == null)
+                    return Ok(new JsendSuccess(users));
+                users.ForEach(x => x.Password = "Ignore");
+                return Ok(new JsendSuccess(users));
             }
+            else
+            {
+                return BadRequest(new JsendFail(new { role = "This method doesn't handle Specialist" }));
+            }
+        }
 
-            _context.Entry(user).State = EntityState.Modified;
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> GetUsersByBusiness(int businessId)
+        {
+            var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.BusinessId == businessId).ToListAsync();
+            users.ForEach(x => x.Password = "Ignore");
+            return Ok(new JsendSuccess(users));
+        }
+
+        [HttpPut("userId")]
+        public async Task<IActionResult> PutUser(Guid userId, UserDtoPut userDto)
+        {
+            // This needs to reject the password in the object (prolly new DTO)
+            var user1 = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+            if (!UserExists(userId))
+            {
+                return NotFound(new JsendFail(new { notFound = "User not found" }));
+            }
+            var user = userDto.ConvertToType(user1.Password.ToString());
+            user.Id = userId;
+            _context.Users.Update(user);
 
             try
             {
@@ -62,28 +83,23 @@ namespace Notipet.Web.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
-
-            return NoContent();
+            return Ok(new JsendSuccess(new { }));
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [HttpDelete()]
+        public async Task<IActionResult> DeleteUser(Guid userId)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            var user = await _context.Users.Where(x => x.Active == true && x.Id == userId).FirstOrDefaultAsync();
+            if (user != null)
+            {
+                user.Active = false;
+                _context.Entry(user).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(new { }));
+            }
+            return NotFound(new JsendFail(new { notFound = "User not found" }));
         }
 
         private bool UserExists(Guid id)

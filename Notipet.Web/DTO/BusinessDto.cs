@@ -2,7 +2,7 @@
 
 namespace Notipet.Web.DTO
 {
-    public class BusinessDto
+    public class BusinessDto : IConvertToType<Business>
     {
         public string? BusinessName { get; set; }
         public string? Rnc { get; set; }
@@ -19,7 +19,6 @@ namespace Notipet.Web.DTO
         {
             return new Business()
             {
-                Id = new Guid(),
                 BusinessName = BusinessName,
                 Rnc = Rnc,
                 Phone = Phone,

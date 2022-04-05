@@ -1,12 +1,4 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
@@ -27,30 +19,69 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
-        // GET: api/SignUp/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUserRole(Guid id)
+        [HttpPost("Specialist")]
+        public async Task<ActionResult<User>> PostSpecialist(SpecialistDto specialistDto)
         {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
+            var specialist = specialistDto.ConvertToType();
+            if (specialist.User.Role == RoleId.Specialist)
             {
-                return NotFound();
+                if (_context.Specialities.Any(x => x.Id == specialist.SpecialityId))
+                {
+                    var possibleSpecialist = await _context.Specialists.Where(x => x.User.Username == specialist.User.Username).FirstOrDefaultAsync();
+                    if (possibleSpecialist == null)
+                    {
+                        if (DocumentExist(specialist.User.Document))
+                        {
+                            return Conflict(new JsendFail(new { username = "Document already exist" }));
+                        }
+                        specialist.User.Business = await _context.Businesses.Where(x => x.Id == specialist.User.BusinessId).FirstOrDefaultAsync();
+                        if (specialist.User.Business != null)
+                        {
+                            specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
+                            _context.Specialists.Add(specialist);
+                            await _context.SaveChangesAsync();
+                            specialist.User.Password = null;
+                            return Ok(new JsendSuccess(new
+                            {
+                                jwt = GenerateJwtToken(specialist.User.Username),
+                                specialist = specialist
+                            }));
+                        }
+                        else
+                        {
+                            return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
+                        }
+                    }
+                    else
+                    {
+                        return Conflict(new JsendFail(new { username = "Username already exist" }));
+                    }
+                }
+                else
+                {
+                    return BadRequest(new JsendFail(new { specialty = "Specialty doesn't exists" }));
+                }
             }
-
-            return user;
+            else
+            {
+                return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostUserRole(UserDto userDto)
+        public async Task<ActionResult<User>> PostClient(UserDto userDto)
         {
-            var user = userDto.CovertToType();
+            var user = userDto.ConvertToType();
+            if (user.Role == RoleId.Client)
+            {
+                user.BusinessId = 1;
+            }
             var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
             if (possibleUser == null)
             {
                 if (DocumentExist(user.Document))
                 {
-                    return Conflict(new JsendFail(new { username = "Document already exist" }));
+                    return Conflict(new JsendFail(new { username = "DOCUMENT_ALREADY_EXISTS" }));
                 }
                 user.Business = await _context.Businesses.Where(x => x.Id == user.BusinessId).FirstOrDefaultAsync();
                 if (user.Business != null)
@@ -58,26 +89,24 @@ namespace Notipet.Web.Controllers
                     user.Password = Methods.ComputeSha256Hash(user.Password);
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    var data = (new LoginResponseDto
+                    user.Password = null;
+                    return Ok(new JsendSuccess(new
                     {
-                        Token = GenerateJwtToken(user.Username),
-                        Username = user.Username,
-                        Email = user.Email,
-                        BusinessId = user.BusinessId.ToString(),
-                        UserId = user.Id.ToString()
-                    });
-                    return Ok(new JsendSuccess(data));
+                        jwt = GenerateJwtToken(user.Username),
+                        user = user
+                    }));
                 }
                 else
                 {
-                    return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
+                    return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
                 }
             }
             else
             {
-                return Conflict(new JsendFail(new { username = "Username already exist" }));
+                return Conflict(new JsendFail(new { username = "USERNAME_ALREADY_EXISTS" }));
             }
         }
+
         private bool DocumentExist(string doc)
         {
             if (doc == null)

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Notipet.Domain\Notipet.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
