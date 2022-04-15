@@ -31,6 +31,12 @@ namespace Notipet.Web.Controllers
             var data = await _context.Businesses.ToListAsync();
             return Ok(new JsendSuccess(data));
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<Business>>> GetBusinessesById(int id)
+        {
+            var business = await _context.Businesses.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return Ok(new JsendSuccess(business));
+        }
 
         // PUT: api/Businesses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

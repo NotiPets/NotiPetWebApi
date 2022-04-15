@@ -44,7 +44,7 @@ namespace Notipet.Web.Controllers
         {
             if (RoleId.Specialist != role)
             {
-                var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist).ToListAsync();
+                var users = await _context.Users.Where(x => x.Active == true && x.Role == role).ToListAsync();
                 if (users == null)
                     return Ok(new JsendSuccess(users));
                 users.ForEach(x => x.Password = "Ignore");
