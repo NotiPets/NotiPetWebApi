@@ -28,18 +28,43 @@ namespace Notipet.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pet>>> GetPets()
         {
-            return await _context.Pets.ToListAsync();
+            var pets = await _context.Pets.Where(x => x.Active == true && x.User.Active == true).Include("User").ToListAsync();
+            foreach (var item in pets)
+            {
+                item.User.Password = null;
+                item.PetTypeName = item.PetType.ToString();
+            }
+            return Ok(new JsendSuccess(pets));
         }
 
         // GET: api/Pets/5
-        [HttpGet("{UserId}")]
-        public async Task<ActionResult<Pet>> GetPet(Guid UserId)
+        [HttpGet("ByUserId/{userId}")]
+        public async Task<ActionResult<Pet>> GetPetsByUserId(Guid userId)
         {
-            var pet = await _context.Pets.Where(x => x.UserId == UserId).FirstOrDefaultAsync();
+            var pet = await _context.Pets.Where(x => x.UserId == userId && x.Active == true).Include("User").ToListAsync();
             if (pet == null)
             {
                 return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
             }
+            foreach (var item in pet)
+            {
+                item.User.Password = null;
+                item.PetTypeName = item.PetType.ToString();
+            }
+            return Ok(new JsendSuccess(pet));
+        }
+
+        // GET: api/Pets/5
+        [HttpGet("ByPetId/{petId}")]
+        public async Task<ActionResult<Pet>> GetPetByPetId(Guid petId)
+        {
+            var pet = await _context.Pets.Where(x => x.Id == petId).Include("User").FirstOrDefaultAsync();
+            if (pet == null)
+            {
+                return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
+            }
+            pet.User.Password = null;
+            pet.PetTypeName = pet.PetType.ToString();
             return Ok(new JsendSuccess(pet));
         }
 

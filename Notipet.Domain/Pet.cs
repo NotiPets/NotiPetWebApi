@@ -18,11 +18,13 @@ namespace Notipet.Domain
         [Column("PetTypeId")]
         public PetTypeId PetType { get; set; }
 
+        [NotMapped]
+        public string? PetTypeName { get; set; }
+
         // Maybe change all of this to Owner
         [Required]
         public Guid UserId { get; set; }
 
-        [NotMapped]
         public User? User { get; set; }
 
         [Required]
