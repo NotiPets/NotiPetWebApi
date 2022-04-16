@@ -40,6 +40,8 @@ namespace Utilities
             }
         }
 
+        public static bool IsDevelopment() => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
         public static string ComputeSha256Hash(string toHash)
         {
             string hashed = String.Empty;

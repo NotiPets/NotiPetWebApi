@@ -4,13 +4,14 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Notipet.Web.Validation;
 using Utilities;
 
 namespace Notipet.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SignUpController : JwtBaseController
+    public class SignUpController : JwtControllerBase
     {
         private readonly NotiPetBdContext _context;
 
@@ -20,72 +21,49 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPost("Specialist")]
-        public async Task<ActionResult<User>> PostSpecialist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>> PostSpecialist(SpecialistDto specialistDto)
         {
-            var specialist = specialistDto.ConvertToType();
-            if (specialist.User.Role == RoleId.Specialist)
+            try
             {
-                if (_context.Specialities.Any(x => x.Id == specialist.SpecialityId))
+                var error = await Validate(specialistDto, new SpecialistSignUpValidation(_context));
+                if (error == null)
                 {
-                    var possibleSpecialist = await _context.Specialists.Where(x => x.User.Username == specialist.User.Username).FirstOrDefaultAsync();
-                    if (possibleSpecialist == null)
+                    var specialist = specialistDto.ConvertToType();
+                    specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
+                    _context.Specialists.Add(specialist);
+                    await _context.SaveChangesAsync();
+                    specialist.User.Password = null;
+                    return Ok(new JsendSuccess(new
                     {
-                        if (DocumentExist(specialist.User.Document))
-                        {
-                            return Conflict(new JsendFail(new { username = "Document already exist" }));
-                        }
-                        specialist.User.Business = await _context.Businesses.Where(x => x.Id == specialist.User.BusinessId).FirstOrDefaultAsync();
-                        if (specialist.User.Business != null)
-                        {
-                            specialist.User.Password = Methods.ComputeSha256Hash(specialist.User.Password);
-                            _context.Specialists.Add(specialist);
-                            await _context.SaveChangesAsync();
-                            specialist.User.Password = null;
-                            return Ok(new JsendSuccess(new
-                            {
-                                jwt = GenerateJwtToken(specialist.User.Username),
-                                specialist = specialist
-                            }));
-                        }
-                        else
-                        {
-                            return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
-                        }
-                    }
-                    else
-                    {
-                        return Conflict(new JsendFail(new { username = "Username already exist" }));
-                    }
+                        jwt = GenerateJwtToken(specialist.User.Username),
+                        specialist = specialist
+                    }));
                 }
-                else
-                {
-                    return BadRequest(new JsendFail(new { specialty = "Specialty doesn't exists" }));
-                }
+                return error;
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostClient(UserDto userDto)
+        public async Task<ActionResult<JsendWrapper>> PostClient(UserDto userDto)
         {
-            var user = userDto.ConvertToType();
-            if (user.Role == RoleId.Client)
+            try
             {
-                user.BusinessId = 1;
-            }
-            var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
-            if (possibleUser == null)
-            {
-                if (DocumentExist(user.Document))
+                var error = await Validate(userDto, new UserSignUpValidation(_context));
+                if (error == null)
                 {
-                    return Conflict(new JsendFail(new { username = "DOCUMENT_ALREADY_EXISTS" }));
-                }
-                user.Business = await _context.Businesses.Where(x => x.Id == user.BusinessId).FirstOrDefaultAsync();
-                if (user.Business != null)
-                {
+                    var user = userDto.ConvertToType();
+                    if (user.Role == RoleId.Client)
+                    {
+                        user.BusinessId = 1;
+                    }
                     user.Password = Methods.ComputeSha256Hash(user.Password);
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -96,22 +74,16 @@ namespace Notipet.Web.Controllers
                         user = user
                     }));
                 }
-                else
-                {
-                    return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
-                }
+                return error;
             }
-            else
+            catch (Exception e)
             {
-                return Conflict(new JsendFail(new { username = "USERNAME_ALREADY_EXISTS" }));
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
-        }
-
-        private bool DocumentExist(string doc)
-        {
-            if (doc == null)
-                return false;
-            return _context.Users.Any(e => e.Document == doc);
         }
     }
 }

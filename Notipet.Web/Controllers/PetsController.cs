@@ -10,6 +10,7 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Utilities;
 
 namespace Notipet.Web.Controllers
 {
@@ -28,44 +29,80 @@ namespace Notipet.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pet>>> GetPets()
         {
-            var pets = await _context.Pets.Where(x => x.Active == true && x.User.Active == true).Include("User").ToListAsync();
-            foreach (var item in pets)
+            try
             {
-                item.User.Password = null;
-                item.PetTypeName = item.PetType.ToString();
+                var pets = await _context.Pets.Where(x => x.Active == true && x.User.Active == true).Include("User").ToListAsync();
+                foreach (var item in pets)
+                {
+                    item.User.Password = null;
+                    item.PetTypeName = item.PetType.ToString();
+                }
+                return Ok(new JsendSuccess(pets));
             }
-            return Ok(new JsendSuccess(pets));
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         // GET: api/Pets/5
         [HttpGet("ByUserId/{userId}")]
         public async Task<ActionResult<Pet>> GetPetsByUserId(Guid userId)
         {
-            var pet = await _context.Pets.Where(x => x.UserId == userId && x.Active == true).Include("User").ToListAsync();
-            if (pet == null)
+            try
             {
-                return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
+                var pet = await _context.Pets.Where(x => x.UserId == userId && x.Active == true).Include("User").ToListAsync();
+                if (pet == null)
+                {
+                    return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
+                }
+                foreach (var item in pet)
+                {
+                    item.User.Password = null;
+                    item.PetTypeName = item.PetType.ToString();
+                }
+                return Ok(new JsendSuccess(pet));
             }
-            foreach (var item in pet)
+            catch (Exception e)
             {
-                item.User.Password = null;
-                item.PetTypeName = item.PetType.ToString();
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
-            return Ok(new JsendSuccess(pet));
+
         }
 
         // GET: api/Pets/5
         [HttpGet("ByPetId/{petId}")]
         public async Task<ActionResult<Pet>> GetPetByPetId(Guid petId)
         {
-            var pet = await _context.Pets.Where(x => x.Id == petId).Include("User").FirstOrDefaultAsync();
-            if (pet == null)
+            try
             {
-                return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
+                var pet = await _context.Pets.Where(x => x.Id == petId).Include("User").FirstOrDefaultAsync();
+                if (pet == null)
+                {
+                    return NotFound(new JsendFail(new { pet = "NOT_FOUND" }));
+                }
+                pet.User.Password = null;
+                pet.PetTypeName = pet.PetType.ToString();
+                return Ok(new JsendSuccess(pet));
             }
-            pet.User.Password = null;
-            pet.PetTypeName = pet.PetType.ToString();
-            return Ok(new JsendSuccess(pet));
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         // PUT: api/Pets/5
@@ -73,30 +110,41 @@ namespace Notipet.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPet(Guid id, Pet pet)
         {
-            if (id != pet.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(pet).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PetExists(id))
+                if (id != pet.Id)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                _context.Entry(pet).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PetExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
         }
 
         // POST: api/Pets
@@ -104,27 +152,51 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<PetDto>> PostPet(PetDto petdto)
         {
-            var pet = petdto.ConvertToType();
-            _context.Pets.Add(pet);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var pet = petdto.ConvertToType();
+                _context.Pets.Add(pet);
+                await _context.SaveChangesAsync();
 
-            return Ok(new JsendSuccess(pet));
+                return Ok(new JsendSuccess(pet));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         // DELETE: api/Pets/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePet(Guid id)
         {
-            var pet = await _context.Pets.FindAsync(id);
-            if (pet == null)
+            try
             {
-                return NotFound();
+                var pet = await _context.Pets.FindAsync(id);
+                if (pet == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Pets.Remove(pet);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
-            _context.Pets.Remove(pet);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool PetExists(Guid id)

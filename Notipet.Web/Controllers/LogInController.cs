@@ -22,26 +22,38 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<LoginDto>> LogIn(LoginDto login)
         {
-            login.Password = Methods.ComputeSha256Hash(login.Password);
-            User search = new User();
-
-            search = await _context.Users
-                .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
-
-            if (search != null)
+            try
             {
-                search.Password = null;
-                return Ok(new JsendSuccess(new
+                login.Password = Methods.ComputeSha256Hash(login.Password);
+                User search = new User();
+
+                search = await _context.Users
+                    .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
+
+                if (search != null)
                 {
-                    jwt = GenerateJwtToken(search.Username),
-                    user = search,
+                    search.Password = null;
+                    return Ok(new JsendSuccess(new
+                    {
+                        jwt = GenerateJwtToken(search.Username),
+                        user = search,
 
-                }));
+                    }));
+                }
+                else
+                {
+                    return Unauthorized(new JsendFail(new { credentials = "INVALID_CREDENTIALS" }));
+                }
             }
-            else
+            catch (Exception e)
             {
-                return Unauthorized(new JsendFail(new { credentials = "INVALID_CREDENTIALS" }));
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
+
         }
     }
 }

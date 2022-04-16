@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
+using Utilities;
 
 namespace Notipet.Web.Controllers
 {
@@ -68,9 +69,21 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<Speciality>> PostSpeciality(Speciality speciality)
         {
-            _context.Specialities.Add(speciality);
-            await _context.SaveChangesAsync();
-            return Ok(new JsendSuccess(speciality));
+            try
+            {
+                _context.Specialities.Add(speciality);
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(speciality));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
     }
 }
