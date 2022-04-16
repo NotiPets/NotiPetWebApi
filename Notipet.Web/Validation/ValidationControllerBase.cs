@@ -6,7 +6,7 @@ namespace Notipet.Web.Validation
 {
     public abstract class ValidationControllerBase : ControllerBase
     {
-        protected async Task<ActionResult<JsendWrapper>> Validate<T>(T data, ValidationBase validationClass)
+        protected async Task<ActionResult<JsendWrapper>?> Validate<T>(T data, ValidationBase validationClass)
         {
             MethodInfo[] methodInfos = validationClass.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             foreach (MethodInfo methodInfo in methodInfos)

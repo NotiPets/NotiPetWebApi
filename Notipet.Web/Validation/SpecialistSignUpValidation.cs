@@ -13,16 +13,16 @@ namespace Notipet.Web.Validation
 
         }
 
-        public async Task<ActionResult<JsendWrapper>> IsSpecialist(SpecialistDto specialistDto)
+        public Task<ActionResult<JsendWrapper>> IsSpecialist(SpecialistDto specialistDto)
         {
             if (specialistDto.User.Role == Domain.RoleId.Specialist)
             {
-                return null;
+                return Task.FromResult(null);
             }
-            return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
+            return Task.FromResult(BadRequest(new JsendFail(new { role = "The role needs to be Specialist" })));
         }
 
-        public async Task<ActionResult<JsendWrapper>> UsernameDoesNotExist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>?> UsernameDoesNotExist(SpecialistDto specialistDto)
         {
             if (!await _context.Specialists.Where(x => x.User.Username == specialistDto.User.Username).AnyAsync())
             {
@@ -31,7 +31,7 @@ namespace Notipet.Web.Validation
             return Conflict(new JsendFail(new { username = "Username already exist" }));
         }
 
-        public async Task<ActionResult<JsendWrapper>> DocumentDoesNotExist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>?> DocumentDoesNotExist(SpecialistDto specialistDto)
         {
             if (!await _context.Users.Where(x => x.Document == specialistDto.User.Document).AnyAsync())
             {
@@ -40,7 +40,7 @@ namespace Notipet.Web.Validation
             return Conflict(new JsendFail(new { username = "Document already exist" }));
         }
 
-        public async Task<ActionResult<JsendWrapper>> BusinessDoesExist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>?> BusinessDoesExist(SpecialistDto specialistDto)
         {
             if (await _context.Businesses.Where(x => x.Id == specialistDto.User.BusinessId).AnyAsync())
             {
@@ -49,7 +49,7 @@ namespace Notipet.Web.Validation
             return NotFound(new JsendFail(new { businness = "Business doesn't exist" }));
         }
 
-        public async Task<ActionResult<JsendWrapper>> SpecialtyExist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>?> SpecialtyExist(SpecialistDto specialistDto)
         {
             if (await _context.Specialities.Where(x => x.Id == specialistDto.SpecialtyId).AnyAsync())
             {
