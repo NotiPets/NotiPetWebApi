@@ -39,13 +39,13 @@ namespace Notipet.Web.Validation
             return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
         }
 
-        public Task<ActionResult<JsendWrapper>> IsNotSpecialist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>> IsNotSpecialist(SpecialistDto specialistDto)
         {
             if (specialistDto.User.Role != Domain.RoleId.Specialist)
             {
-                return Task.FromResult(null);
+                return null;
             }
-            return Task.FromResult(BadRequest(new JsendFail(new { role = "The role needs to be Specialist" })));
+            return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
         }
     }
 }

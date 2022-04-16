@@ -13,13 +13,13 @@ namespace Notipet.Web.Validation
 
         }
 
-        public Task<ActionResult<JsendWrapper>> IsSpecialist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>> IsSpecialist(SpecialistDto specialistDto)
         {
             if (specialistDto.User.Role == Domain.RoleId.Specialist)
             {
-                return Task.FromResult(null);
+                return null;
             }
-            return Task.FromResult(BadRequest(new JsendFail(new { role = "The role needs to be Specialist" })));
+            return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
         }
 
         public async Task<ActionResult<JsendWrapper>?> UsernameDoesNotExist(SpecialistDto specialistDto)
