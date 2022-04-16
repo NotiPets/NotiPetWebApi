@@ -22,14 +22,17 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --no-restore
     - name: Install dotnet format
       run: dotnet tool update --global dotnet-format
     - name: Run dotnet format
       run: dotnet-format --check --verbosity diagnostic
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
     - name: Docker build
       run: docker login -u=_ -p=$HEROKU_API_KEY registry.heroku.com
     - name: Publish
       run: |
         heroku container:push web -a $APP_NAME
         heroku container:release web -a $APP_NAME
+

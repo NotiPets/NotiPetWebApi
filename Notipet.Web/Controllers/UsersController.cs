@@ -42,10 +42,12 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
+                string error = $"{e.Message}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
-                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                    return StatusCode(500, new JsendError(error));
                 }
+                Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
@@ -72,10 +74,12 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
+                string error = $"{e.Message}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
-                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                    return StatusCode(500, new JsendError(error));
                 }
+                Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
@@ -92,10 +96,12 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
+                string error = $"{e.Message}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
-                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                    return StatusCode(500, new JsendError(error));
                 }
+                Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
@@ -128,10 +134,12 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
+                string error = $"{e.Message}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
-                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                    return StatusCode(500, new JsendError(error));
                 }
+                Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
@@ -154,10 +162,12 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
+                string error = $"{e.Message}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
-                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                    return StatusCode(500, new JsendError(error));
                 }
+                Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
