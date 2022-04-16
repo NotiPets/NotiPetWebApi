@@ -4,13 +4,14 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Notipet.Web.Validation;
 using Utilities;
 
 namespace Notipet.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SignUpController : JwtBaseController
+    public class SignUpController : JwtControllerBase
     {
         private readonly NotiPetBdContext _context;
 
@@ -69,23 +70,19 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostClient(UserDto userDto)
+        public async Task<ActionResult<JsendWrapper>> PostClient(UserDto userDto)
         {
-            var user = userDto.ConvertToType();
-            if (user.Role == RoleId.Client)
+            try
             {
-                user.BusinessId = 1;
-            }
-            var possibleUser = await _context.Users.Where(x => x.Username == user.Username).FirstOrDefaultAsync();
-            if (possibleUser == null)
-            {
-                if (DocumentExist(user.Document))
+                var error = await Validate(userDto, new SignUpValidation(_context));
+                throw new();
+                if (error == null)
                 {
-                    return Conflict(new JsendFail(new { username = "DOCUMENT_ALREADY_EXISTS" }));
-                }
-                user.Business = await _context.Businesses.Where(x => x.Id == user.BusinessId).FirstOrDefaultAsync();
-                if (user.Business != null)
-                {
+                    var user = userDto.ConvertToType();
+                    if (user.Role == RoleId.Client)
+                    {
+                        user.BusinessId = 1;
+                    }
                     user.Password = Methods.ComputeSha256Hash(user.Password);
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -96,14 +93,15 @@ namespace Notipet.Web.Controllers
                         user = user
                     }));
                 }
-                else
-                {
-                    return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
-                }
+                return error;
             }
-            else
+            catch (Exception e)
             {
-                return Conflict(new JsendFail(new { username = "USERNAME_ALREADY_EXISTS" }));
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, $"{e.Message}\n{e.StackTrace}");
+                }
+                return StatusCode(500, "¡Oops! Parece que algo pasó...");
             }
         }
 

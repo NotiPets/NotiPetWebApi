@@ -70,6 +70,7 @@ namespace Notipet.Domain
         [StringLength(2048)]
         public string? PictureUrl { get; set; }
         public bool? Active { get; set; } = true;
+        public string Description { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime? Updated { get; set; } = DateTime.Now;
     }
