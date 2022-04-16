@@ -10,6 +10,7 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Utilities;
 
 namespace Notipet.Web.Controllers
 {
@@ -28,78 +29,138 @@ namespace Notipet.Web.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<JsendWrapper>> GetUser(string username)
         {
-            var user = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
-            if (user == null)
+            try
             {
-                return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
-            }
-            user.Password = "Ignore";
+                var user = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    return NotFound(new JsendFail(new { credentials = "NOT_FOUND" }));
+                }
+                user.Password = "Ignore";
 
-            return Ok(new JsendSuccess(user));
+                return Ok(new JsendSuccess(user));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         // GET: api/Users
         [HttpGet("ByRole/{role}")]
         public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetUsersByRole(RoleId role)
         {
-            if (RoleId.Specialist != role)
+            try
             {
-                var users = await _context.Users.Where(x => x.Active == true && x.Role == role).ToListAsync();
-                if (users == null)
+                if (RoleId.Specialist != role)
+                {
+                    var users = await _context.Users.Where(x => x.Active == true && x.Role == role).ToListAsync();
+                    if (users == null)
+                        return Ok(new JsendSuccess(users));
+                    users.ForEach(x => x.Password = "Ignore");
                     return Ok(new JsendSuccess(users));
-                users.ForEach(x => x.Password = "Ignore");
-                return Ok(new JsendSuccess(users));
+                }
+                else
+                {
+                    return BadRequest(new JsendFail(new { role = "This method doesn't handle Specialist" }));
+                }
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest(new JsendFail(new { role = "This method doesn't handle Specialist" }));
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
+
         }
 
         [HttpGet("ByBusiness/{businessId}")]
         public async Task<ActionResult<IEnumerable<Specialist>>> GetUsersByBusiness(int businessId)
         {
-            var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.BusinessId == businessId).ToListAsync();
-            users.ForEach(x => x.Password = "Ignore");
-            return Ok(new JsendSuccess(users));
+            try
+            {
+                var users = await _context.Users.Where(x => x.Active == true && x.Role != RoleId.Specialist && x.BusinessId == businessId).ToListAsync();
+                users.ForEach(x => x.Password = "Ignore");
+                return Ok(new JsendSuccess(users));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         [HttpPut("userId")]
         public async Task<IActionResult> PutUser(Guid userId, UserDtoPut userDto)
         {
-            // This needs to reject the password in the object (prolly new DTO)
-            var user1 = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
-            if (!UserExists(userId))
-            {
-                return NotFound(new JsendFail(new { notFound = "User not found" }));
-            }
-            var user = userDto.ConvertToType(user1.Password.ToString());
-            user.Id = userId;
-            _context.Users.Update(user);
-
             try
             {
-                await _context.SaveChangesAsync();
+                // This needs to reject the password in the object (prolly new DTO)
+                var user1 = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+                if (!UserExists(userId))
+                {
+                    return NotFound(new JsendFail(new { notFound = "User not found" }));
+                }
+                var user = userDto.ConvertToType(user1.Password.ToString());
+                user.Id = userId;
+                _context.Users.Update(user);
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    throw;
+                }
+                return Ok(new JsendSuccess(new { }));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception e)
             {
-                throw;
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
-            return Ok(new JsendSuccess(new { }));
+
         }
 
         [HttpDelete()]
         public async Task<IActionResult> DeleteUser(Guid userId)
         {
-            var user = await _context.Users.Where(x => x.Active == true && x.Id == userId).FirstOrDefaultAsync();
-            if (user != null)
+            try
             {
-                user.Active = false;
-                _context.Entry(user).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return Ok(new JsendSuccess(new { }));
+                var user = await _context.Users.Where(x => x.Active == true && x.Id == userId).FirstOrDefaultAsync();
+                if (user != null)
+                {
+                    user.Active = false;
+                    _context.Entry(user).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    return Ok(new JsendSuccess(new { }));
+                }
+                return NotFound(new JsendFail(new { notFound = "User not found" }));
             }
-            return NotFound(new JsendFail(new { notFound = "User not found" }));
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         private bool UserExists(Guid id)

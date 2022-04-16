@@ -29,11 +29,23 @@ namespace Notipet.Web.Controllers
         [HttpGet("ByUser/{userId}")]
         public async Task<ActionResult<IEnumerable<Sale>>> GetSales(Guid userId)
         {
-            return Ok(new JsendSuccess(await _context.Sales
-                .Where(sale => sale.Orders.Where(order => order.UserId == userId).Any())
-                .Include(sale => sale.Orders)
-                .ThenInclude(order => order.Appointment)
-                .ToListAsync()));
+            try
+            {
+                return Ok(new JsendSuccess(await _context.Sales
+                                .Where(sale => sale.Orders.Where(order => order.UserId == userId).Any())
+                                .Include(sale => sale.Orders)
+                                .ThenInclude(order => order.Appointment)
+                                .ToListAsync()));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
 
         }
 
@@ -41,12 +53,24 @@ namespace Notipet.Web.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Sale>> GetSale(Guid id)
         {
-            var sale = await _context.Sales.FindAsync(id);
-            if (sale == null)
+            try
             {
-                return NotFound(new JsendFail(new { }));
+                var sale = await _context.Sales.FindAsync(id);
+                if (sale == null)
+                {
+                    return NotFound(new JsendFail(new { }));
+                }
+                return Ok(new JsendSuccess(sale));
             }
-            return Ok(new JsendSuccess(sale));
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         // POST: api/Sales
@@ -54,18 +78,30 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<Sale>> PostSale(SaleDto saleDto)
         {
-            var sale = saleDto.ConvertToType();
-            if (!(await AppointmentInAssetOrder(sale.Orders.ToList())))
+            try
             {
-                sale.Total = await ComputeSaleTotal(sale.Orders.ToList());
-                _context.Sales.Add(sale);
-                await _context.SaveChangesAsync();
-                return Ok(new JsendSuccess(sale));
+                var sale = saleDto.ConvertToType();
+                if (!(await AppointmentInAssetOrder(sale.Orders.ToList())))
+                {
+                    sale.Total = await ComputeSaleTotal(sale.Orders.ToList());
+                    _context.Sales.Add(sale);
+                    await _context.SaveChangesAsync();
+                    return Ok(new JsendSuccess(sale));
+                }
+                else
+                {
+                    return BadRequest(new JsendFail(new { appointment = "Asset order can't have an appointment" }));
+                }
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest(new JsendFail(new { appointment = "Asset order can't have an appointment" }));
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
+
         }
 
         private async Task<bool> AppointmentInAssetOrder(List<Order> orders)

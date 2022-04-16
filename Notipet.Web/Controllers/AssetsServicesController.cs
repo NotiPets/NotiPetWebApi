@@ -10,6 +10,7 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Utilities;
 
 namespace Notipet.Web.Controllers
 {
@@ -26,20 +27,29 @@ namespace Notipet.Web.Controllers
 
         // GET: api/AssetsServices
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AssetsServices>>> GetAssetsServices()
-        {
-            return await _context.AssetsServices.ToListAsync();
-        }
+        public async Task<ActionResult<IEnumerable<AssetsServices>>> GetAssetsServices() => await _context.AssetsServices.ToListAsync();
 
         // POST: api/AssetsServices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<AssetsServices>> PostAssetsServices(AssetServiceDto assetsServicesDto)
         {
-            var assetsServices = assetsServicesDto.ConvertToType();
-            _context.AssetsServices.Add(assetsServices);
-            await _context.SaveChangesAsync();
-            return Ok(new JsendSuccess(assetsServices));
+            try
+            {
+                var assetsServices = assetsServicesDto.ConvertToType();
+                _context.AssetsServices.Add(assetsServices);
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(assetsServices));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
     }
 }

@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Notipet.Web.Validation
 {
-    public class SignUpValidation : ValidationBase
+    public class UserSignUpValidation : ValidationBase
     {
 
-        public SignUpValidation(NotiPetBdContext context) : base(context)
+        public UserSignUpValidation(NotiPetBdContext context) : base(context)
         {
 
         }
@@ -37,6 +37,15 @@ namespace Notipet.Web.Validation
                 return null;
             }
             return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
+        }
+
+        public async Task<ActionResult<JsendWrapper>> IsNotSpecialist(SpecialistDto specialistDto)
+        {
+            if (specialistDto.User.Role != Domain.RoleId.Specialist)
+            {
+                return null;
+            }
+            return BadRequest(new JsendFail(new { role = "The role needs to be Specialist" }));
         }
     }
 }
