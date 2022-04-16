@@ -10,6 +10,7 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Utilities;
 
 namespace Notipet.Web.Controllers
 {
@@ -26,47 +27,50 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Businesses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Business>>> GetBusinesses()
-        {
-            var data = await _context.Businesses.ToListAsync();
-            return Ok(new JsendSuccess(data));
-        }
+        public async Task<ActionResult<IEnumerable<Business>>> GetBusinesses() => Ok(new JsendSuccess(await _context.Businesses.ToListAsync()));
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Business>>> GetBusinessesById(int id)
-        {
-            var business = await _context.Businesses.Where(x => x.Id == id).FirstOrDefaultAsync();
-            return Ok(new JsendSuccess(business));
-        }
+        public async Task<ActionResult<IEnumerable<Business>>> GetBusinessesById(int id) => Ok(new JsendSuccess(await _context.Businesses.Where(x => x.Id == id).FirstOrDefaultAsync()));
 
         // PUT: api/Businesses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBusiness(int id, Business business)
         {
-            if (id != business.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(business).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BusinessExists(id))
+                if (id != business.Id)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                _context.Entry(business).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BusinessExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
         }
 
         // POST: api/Businesses
@@ -74,10 +78,22 @@ namespace Notipet.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<Business>> PostBusiness(BusinessDto businessDto)
         {
-            var business = businessDto.ConvertToType();
-            _context.Businesses.Add(business);
-            await _context.SaveChangesAsync();
-            return Ok(new JsendSuccess(business));
+            try
+            {
+                var business = businessDto.ConvertToType();
+                _context.Businesses.Add(business);
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(business));
+            }
+            catch (Exception e)
+            {
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError($"{e.Message}\n{e.StackTrace}"));
+                }
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
 
         private bool BusinessExists(int id)

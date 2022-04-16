@@ -22,6 +22,12 @@ namespace Notipet.Domain
         [NotMapped]
         public AssetsServices? AssetsServices { get; set; }
 
+        [Required]
+        public int? BusinessId { get; set; } = null;
+
+        [NotMapped]
+        public Business? Business { get; set; }
+
         [Column("AppointmentId")]
         public Appointment? Appointment { get; set; }
 

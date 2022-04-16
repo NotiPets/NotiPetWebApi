@@ -16,6 +16,11 @@ namespace Utilities
             public const string Error = "error";
         }
 
+        public static class ControllerTextResponse
+        {
+            public const string Error = "¡Oops! Parece que algo pasó...";
+        }
+
         public static class BusinessDefault
         {
             public const int Id = 1;
