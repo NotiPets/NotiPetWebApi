@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
+using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
 
@@ -39,9 +40,9 @@ namespace Notipet.Web.Validation
             return NotFound(new JsendFail(new { businness = "BUSINESS_DOESN'T_EXISTS" }));
         }
 
-        public async Task<ActionResult<JsendWrapper>> IsNotSpecialist(SpecialistDto specialistDto)
+        public async Task<ActionResult<JsendWrapper>> IsNotSpecialist(UserDto userDto)
         {
-            if (specialistDto.User.Role != Domain.RoleId.Specialist)
+            if (userDto.Role != RoleId.Specialist)
             {
                 return null;
             }
