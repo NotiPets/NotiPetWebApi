@@ -10,9 +10,7 @@ namespace Notipet.Domain
     {
         // This needs to be a Guid
         public Guid Id { get; set; }
-
-        [Required]
-        public Guid SpecialistId { get; set; }
+        public Guid? SpecialistId { get; set; }
 
         [NotMapped]
         public Specialist Specialist { get; set; }

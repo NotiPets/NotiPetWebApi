@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
+using Notipet.Web.DTO;
 using Notipet.Web.Validation;
 using Utilities;
 
@@ -52,15 +53,12 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<JsendWrapper>> PutAppointment(Guid id, Appointment appointment)
+        public async Task<ActionResult<JsendWrapper>> PutAppointment(Guid id, AppointmentDto appointmentDto)
         {
             try
             {
-                if (id != appointment.Id)
-                {
-                    return BadRequest(new JsendFail(new { id = "Appointment Id not found" }));
-                }
-
+                var appointment = appointmentDto.ConvertToType();
+                appointment.Id = id;
                 _context.Entry(appointment).State = EntityState.Modified;
 
                 try
