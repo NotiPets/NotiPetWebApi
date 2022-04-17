@@ -17,16 +17,14 @@ namespace Notipet.Domain
         public User User { get; set; }
 
         [Required]
+        public Guid PetId { get; set; }
+        public Pet? Pet { get; set; }
+
+        [Required]
         public int? AssetsServicesId { get; set; } = null;
 
         [NotMapped]
         public AssetsServices? AssetsServices { get; set; }
-
-        [Required]
-        public int? BusinessId { get; set; } = null;
-
-        [NotMapped]
-        public Business? Business { get; set; }
 
         [Column("AppointmentId")]
         public Appointment? Appointment { get; set; }

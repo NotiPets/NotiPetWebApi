@@ -327,16 +327,15 @@ namespace Notipet.Data.Migrations
                         .IsRequired()
                         .HasColumnType("integer");
 
-                    b.Property<int?>("BusinessId")
-                        .IsRequired()
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("OrderStatus")
                         .HasColumnType("integer")
                         .HasColumnName("OrderStatusId");
+
+                    b.Property<Guid>("PetId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -352,6 +351,8 @@ namespace Notipet.Data.Migrations
                     b.HasIndex("AppointmentId");
 
                     b.HasIndex("OrderStatus");
+
+                    b.HasIndex("PetId");
 
                     b.HasIndex("SaleId");
 
@@ -572,6 +573,9 @@ namespace Notipet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -582,6 +586,8 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
 
                     b.ToTable("Sales");
                 });
@@ -849,11 +855,19 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Notipet.Domain.Pet", "Pet")
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Notipet.Domain.Sale", null)
                         .WithMany("Orders")
                         .HasForeignKey("SaleId");
 
                     b.Navigation("Appointment");
+
+                    b.Navigation("Pet");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Pet", b =>
@@ -902,6 +916,17 @@ namespace Notipet.Data.Migrations
                     b.Navigation("Business");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Notipet.Domain.Sale", b =>
+                {
+                    b.HasOne("Notipet.Domain.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Specialist", b =>
