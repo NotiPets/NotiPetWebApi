@@ -19,7 +19,7 @@ namespace Notipet.Web.DTO
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string? PictureUrl { get; set; }
-
+        public string? Description { get; set; }
         public User ConvertToType()
         {
             return new User()
@@ -41,7 +41,8 @@ namespace Notipet.Web.DTO
                 Username = Username,
                 Password = Password,
                 PictureUrl = PictureUrl,
-                Email = Email
+                Email = Email,
+                Description = Description
             };
         }
 
