@@ -13,7 +13,7 @@ namespace Notipet.Web.DTO
             return new Appointment
             {
                 SpecialistId = SpecialistId,
-                Date = Date,
+                Date = Date.ToUniversalTime(),
                 IsEmergency = IsEmergency,
                 AppointmentStatus = AppointmentStatus.HasValue ? AppointmentStatus.Value : AppointmentStatusId.Requested
             };
