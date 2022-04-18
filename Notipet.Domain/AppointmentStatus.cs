@@ -10,7 +10,10 @@ namespace Notipet.Domain
     {
         Requested,
         Accepted,
-        Cancelled
+        Cancelled,
+        Completed,
+        Denied,
+
     }
 
     // This class just exists to create an equivalent table to the above enum
