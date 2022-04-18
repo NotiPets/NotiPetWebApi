@@ -61,8 +61,36 @@ namespace Notipet.Web.Controllers
                 var appointments = await _context.Orders
                     .Where(x => x.AssetsServices.AssetsServiceType == AssetsServiceTypeId.Service && x.UserId == userId)
                     .Include(x => x.Appointment.Specialist)
-                    .Include(x => x.Appointment.Specialist.Speciality)
+                    .ThenInclude(x => x.Speciality)
                     .Select(x => x.Appointment)
+                    .ToListAsync();
+                return Ok(new JsendSuccess(appointments));
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+        }
+
+        // GET: api/Appointments/5
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId)
+        {
+            try
+            {
+                var appointments = await _context.Sales
+                    .Where(x => x.BusinessId == businessId && x.Orders.Where(x => x.AssetsServices.AssetsServiceType == AssetsServiceTypeId.Service).Any())
+                    .Include(x => x.Orders)
+                    .ThenInclude(x => x.Appointment)
+                    .ThenInclude(x => x.Specialist)
+                    .ThenInclude(x => x.Speciality)
+                    .Select(x => x.Orders.Select(x => x.Appointment))
                     .ToListAsync();
                 return Ok(new JsendSuccess(appointments));
             }
