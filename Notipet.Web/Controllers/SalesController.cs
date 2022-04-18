@@ -10,13 +10,14 @@ using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Notipet.Web.Validation;
 using Utilities;
 
 namespace Notipet.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SalesController : ControllerBase
+    public class SalesController : ValidationControllerBase
     {
         private readonly NotiPetBdContext _context;
 
@@ -80,22 +81,27 @@ namespace Notipet.Web.Controllers
         // POST: api/Sales
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Sale>> PostSale(SaleDto saleDto)
+        public async Task<ActionResult<JsendWrapper>> PostSale(SaleDto saleDto)
         {
             try
             {
-                var sale = saleDto.ConvertToType();
-                if (!(await AppointmentInAssetOrder(sale.Orders.ToList())))
+                var error = await Validate(saleDto, new SaleValidation(_context));
+                if (error == null)
                 {
+                    var sale = saleDto.ConvertToType();
+                    sale.Orders.ToList().ForEach(o =>
+                    {
+                        if (o.Quantity < 1)
+                        {
+                            o.Quantity = 1;
+                        }
+                    });
                     sale.Total = await ComputeSaleTotal(sale.Orders.ToList());
                     _context.Sales.Add(sale);
                     await _context.SaveChangesAsync();
                     return Ok(new JsendSuccess(sale));
                 }
-                else
-                {
-                    return BadRequest(new JsendFail(new { appointment = "Asset order can't have an appointment" }));
-                }
+                return error;
             }
             catch (Exception e)
             {
@@ -108,19 +114,6 @@ namespace Notipet.Web.Controllers
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
 
-        }
-
-        private async Task<bool> AppointmentInAssetOrder(List<Order> orders)
-        {
-            foreach (var order in orders)
-            {
-                var assetService = await _context.AssetsServices.Where(x => x.Id == order.AssetsServicesId).FirstOrDefaultAsync();
-                if (assetService.AssetsServiceType == AssetsServiceTypeId.Product && order.Appointment != null)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private async Task<decimal> ComputeSaleTotal(List<Order> orders)

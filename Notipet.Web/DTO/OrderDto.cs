@@ -8,6 +8,7 @@ namespace Notipet.Web.DTO
         public int AssetsServicesId { get; set; }
         public AppointmentDto? Appointment { get; set; }
         public int Quantity { get; set; }
+        public Guid PetId { get; set; }
         public Order ConvertToType()
         {
             return new Order
@@ -15,7 +16,8 @@ namespace Notipet.Web.DTO
                 UserId = UserId,
                 AssetsServicesId = AssetsServicesId,
                 Appointment = Appointment?.ConvertToType(),
-                Quantity = Quantity
+                Quantity = Quantity,
+                PetId = PetId
             };
         }
     }

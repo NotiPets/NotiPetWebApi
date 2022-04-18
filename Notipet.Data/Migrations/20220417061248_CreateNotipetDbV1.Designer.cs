@@ -12,14 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Notipet.Data.Migrations
 {
     [DbContext(typeof(NotiPetBdContext))]
-    [Migration("20220325044317_CreateNotipetDbV2")]
-    partial class CreateNotipetDbV2
+    [Migration("20220417061248_CreateNotipetDbV1")]
+    partial class CreateNotipetDbV1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -46,7 +46,7 @@ namespace Notipet.Data.Migrations
                     b.Property<bool>("IsEmergency")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("SpecialistId")
+                    b.Property<Guid?>("SpecialistId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("Updated")
@@ -55,8 +55,6 @@ namespace Notipet.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AppointmentStatus");
-
-                    b.HasIndex("SpecialistId");
 
                     b.ToTable("Appointments");
                 });
@@ -140,8 +138,6 @@ namespace Notipet.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssetsServiceType");
-
-                    b.HasIndex("BusinessId");
 
                     b.HasIndex("Vendor");
 
@@ -329,7 +325,8 @@ namespace Notipet.Data.Migrations
                     b.Property<Guid?>("AppointmentId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AssetsServicesId")
+                    b.Property<int?>("AssetsServicesId")
+                        .IsRequired()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
@@ -338,6 +335,9 @@ namespace Notipet.Data.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("integer")
                         .HasColumnName("OrderStatusId");
+
+                    b.Property<Guid>("PetId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -353,6 +353,8 @@ namespace Notipet.Data.Migrations
                     b.HasIndex("AppointmentId");
 
                     b.HasIndex("OrderStatus");
+
+                    b.HasIndex("PetId");
 
                     b.HasIndex("SaleId");
 
@@ -456,6 +458,8 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("Size");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Pets");
                 });
 
@@ -505,14 +509,14 @@ namespace Notipet.Data.Migrations
                     b.Property<int>("AssetsServicesId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("BusinessId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RatingNumber")
                         .HasColumnType("integer");
-
-                    b.Property<Guid?>("SpecialistId")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -521,7 +525,7 @@ namespace Notipet.Data.Migrations
 
                     b.HasIndex("AssetsServicesId");
 
-                    b.HasIndex("SpecialistId");
+                    b.HasIndex("BusinessId");
 
                     b.HasIndex("UserId");
 
@@ -571,6 +575,9 @@ namespace Notipet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -581,6 +588,8 @@ namespace Notipet.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
 
                     b.ToTable("Sales");
                 });
@@ -688,6 +697,9 @@ namespace Notipet.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<string>("Document")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -789,14 +801,6 @@ namespace Notipet.Data.Migrations
                         .HasForeignKey("AppointmentStatus")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Notipet.Domain.Specialist", "Specialist")
-                        .WithMany()
-                        .HasForeignKey("SpecialistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Specialist");
                 });
 
             modelBuilder.Entity("Notipet.Domain.AssetsServices", b =>
@@ -807,19 +811,11 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.Business", "Business")
-                        .WithMany()
-                        .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Notipet.Domain.Vendor", null)
                         .WithMany("AssetsServices")
                         .HasForeignKey("Vendor")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("Notipet.Domain.DigitalVaccine", b =>
@@ -861,11 +857,19 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Notipet.Domain.Pet", "Pet")
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Notipet.Domain.Sale", null)
                         .WithMany("Orders")
                         .HasForeignKey("SaleId");
 
                     b.Navigation("Appointment");
+
+                    b.Navigation("Pet");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Pet", b =>
@@ -881,6 +885,14 @@ namespace Notipet.Data.Migrations
                         .HasForeignKey("Size")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Notipet.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Rating", b =>
@@ -891,9 +903,9 @@ namespace Notipet.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Notipet.Domain.Specialist", "Specialist")
+                    b.HasOne("Notipet.Domain.Business", "Business")
                         .WithMany()
-                        .HasForeignKey("SpecialistId");
+                        .HasForeignKey("BusinessId");
 
                     b.HasOne("Notipet.Domain.User", "User")
                         .WithMany()
@@ -903,9 +915,20 @@ namespace Notipet.Data.Migrations
 
                     b.Navigation("AssetsServices");
 
-                    b.Navigation("Specialist");
+                    b.Navigation("Business");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Notipet.Domain.Sale", b =>
+                {
+                    b.HasOne("Notipet.Domain.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("Notipet.Domain.Specialist", b =>
