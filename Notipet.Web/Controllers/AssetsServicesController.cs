@@ -29,6 +29,9 @@ namespace Notipet.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AssetsServices>>> GetAssetsServices() => await _context.AssetsServices.ToListAsync();
 
+        [HttpGet("ByBusiness/{businessId}")]
+        public async Task<ActionResult<IEnumerable<AssetsServices>>> GetAssetsServicesByBusinessId(int businessId) => await _context.AssetsServices.Where(x => x.BusinessId == businessId).ToListAsync();
+
         // POST: api/AssetsServices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]

@@ -30,18 +30,36 @@ namespace Notipet.Web.Validation
             return Conflict(new JsendFail(new { pet = "pet doesn't exists" }));
         }
 
-        public async Task<ActionResult<JsendWrapper>?> OrdersWithAppoitmentAreService(SaleDto saleDto)
+        public async Task<ActionResult<JsendWrapper>?> AssetOrdersDoesNotHaveAppointment(SaleDto saleDto)
         {
             foreach (var order in saleDto.Orders.ToList())
             {
-                var assetService = await _context.AssetsServices.Where(x => x.Id == order.AssetsServicesId).FirstOrDefaultAsync();
-                // Si la order no es servicio y tiene un appointment 
-                if (assetService?.AssetsServiceType != AssetsServiceTypeId.Service && order.Appointment != null)
+                var assetService = await _context.AssetsServices.FindAsync(order.AssetsServicesId);
+                if (assetService?.AssetsServiceType == AssetsServiceTypeId.Product && order.Appointment != null)
                 {
                     return BadRequest(new JsendFail(new
                     {
                         // Cambiar a "Order must have a service if it includes an appointment"
                         appointment = "Asset order can't have an appointment",
+                        order = order
+                    }));
+                }
+            }
+            return null;
+        }
+
+        public async Task<ActionResult<JsendWrapper>?> ServiceOrdersHaveAppoitment(SaleDto saleDto)
+        {
+            foreach (var order in saleDto.Orders.ToList())
+            {
+                var assetService = await _context.AssetsServices.FindAsync(order.AssetsServicesId);
+                // Si la order no es producto y tiene un appointment 
+                if (assetService?.AssetsServiceType == AssetsServiceTypeId.Service && order.Appointment == null)
+                {
+                    return BadRequest(new JsendFail(new
+                    {
+                        // Cambiar a "Order must have a service if it includes an appointment"
+                        appointment = "Service order must have an appointment",
                         order = order
                     }));
                 }
