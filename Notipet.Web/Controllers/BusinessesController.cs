@@ -27,14 +27,15 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Businesses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Business>>> GetBusinesses() => Ok(new JsendSuccess(await _context.Businesses.ToListAsync()));
+        public async Task<ActionResult<JsendWrapper>> GetBusinesses() => Ok(new JsendSuccess(await _context.Businesses.ToListAsync()));
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Business>>> GetBusinessesById(int id) => Ok(new JsendSuccess(await _context.Businesses.Where(x => x.Id == id).FirstOrDefaultAsync()));
+        public async Task<ActionResult<JsendWrapper>> GetBusinessesById(int id) => Ok(new JsendSuccess(await _context.Businesses.Where(x => x.Id == id).FirstOrDefaultAsync()));
 
         // PUT: api/Businesses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBusiness(int id, Business business)
+        public async Task<ActionResult<JsendWrapper>> PutBusiness(int id, Business business)
         {
             try
             {
@@ -78,7 +79,7 @@ namespace Notipet.Web.Controllers
         // POST: api/Businesses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Business>> PostBusiness(BusinessDto businessDto)
+        public async Task<ActionResult<JsendWrapper>> PostBusiness(BusinessDto businessDto)
         {
             try
             {

@@ -10,20 +10,22 @@ namespace Notipet.Domain
     {
         public Guid Id { get; set; }
 
-        [Column("BusinessId")]
+        [Required]
+        public int BusinessId { get; set; }
+
         public Business? Business { get; set; }
 
         [Required]
-        [Column("UserId")]
+        public Guid UserId { get; set; }
         public User? User { get; set; }
 
         [Required]
-        [Column("AssetsServicesId")]
-        public AssetsServices? AssetsServices { get; set; }
+        [StringLength(1000)]
+        public string Comment { get; set; }
 
         [Required]
         public int RatingNumber { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
+        public DateTime Created { get; set; } = DateTime.UtcNow;
 
     }
 }
