@@ -12,8 +12,6 @@ namespace Notipet.Domain
 
         [Required]
         public Guid UserId { get; set; }
-
-        [NotMapped]
         public User User { get; set; }
 
         [Required]
@@ -23,7 +21,6 @@ namespace Notipet.Domain
         [Required]
         public int? AssetsServicesId { get; set; } = null;
 
-        [NotMapped]
         public AssetsServices? AssetsServices { get; set; }
 
         [Column("AppointmentId")]
