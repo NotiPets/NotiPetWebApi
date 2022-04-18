@@ -49,5 +49,8 @@ namespace Notipet.Domain
 
         [Required]
         public double? Longitude { get; set; }
+
+        [StringLength(1000)]
+        public string? Comment { get; set; } = null;
     }
 }
