@@ -11,7 +11,6 @@ namespace Notipet.Domain
         public Guid Id { get; set; }
         public User? User { get; set; }
         public int SpecialityId { get; set; }
-        [NotMapped]
         public Speciality? Speciality { get; set; }
     }
 }

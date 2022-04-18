@@ -52,6 +52,32 @@ namespace Notipet.Web.Controllers
             }
         }
 
+        // GET: api/Appointments/5
+        [HttpGet("ByUser/{userId}")]
+        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByUser(Guid userId)
+        {
+            try
+            {
+                var appointments = await _context.Orders
+                    .Where(x => x.AssetsServices.AssetsServiceType == AssetsServiceTypeId.Service && x.UserId == userId)
+                    .Include(x => x.Appointment.Specialist)
+                    .Include(x => x.Appointment.Specialist.Speciality)
+                    .Select(x => x.Appointment)
+                    .ToListAsync();
+                return Ok(new JsendSuccess(appointments));
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<JsendWrapper>> PutAppointment(Guid id, AppointmentDto appointmentDto)
         {
