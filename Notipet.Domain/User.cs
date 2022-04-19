@@ -66,8 +66,6 @@ namespace Notipet.Domain
         [Required]
         [StringLength(25)]
         public string? Province { get; set; }
-
-        [StringLength(2048)]
         public string? PictureUrl { get; set; }
         public bool? Active { get; set; } = true;
         public string? Description { get; set; }
