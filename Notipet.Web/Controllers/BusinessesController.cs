@@ -66,7 +66,7 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
-                string error = $"{e.Message}\n{e.StackTrace}";
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
                     return StatusCode(500, new JsendError(error));
@@ -90,7 +90,7 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
-                string error = $"{e.Message}\n{e.StackTrace}";
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
                     return StatusCode(500, new JsendError(error));

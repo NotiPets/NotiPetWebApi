@@ -9,7 +9,7 @@ namespace Notipet.Web.DTO
 
         public PetTypeId PetType { get; set; }
 
-        public Guid User { get; set; }
+        public Guid UserId { get; set; }
 
         public SizeId Size { get; set; } = 0;
 
@@ -29,7 +29,7 @@ namespace Notipet.Web.DTO
             Pet p = new Pet();
             p.Name = Name;
             p.PetType = PetType;
-            p.UserId = User;
+            p.UserId = UserId;
             p.Size = Size;
             p.PictureUrl = PictureUrl;
             p.Description = Description;
@@ -37,7 +37,7 @@ namespace Notipet.Web.DTO
             p.Vaccinated = Vaccinated;
             p.Castrated = Castrated;
             p.HasTracker = HasTracker;
-            p.Birthdate = Birthdate;
+            p.Birthdate = Birthdate.ToUniversalTime();
             return p;
         }
     }
