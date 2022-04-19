@@ -32,11 +32,12 @@ namespace Notipet.Web.Controllers
         {
             try
             {
-                var appointment = await _context.Appointments.FindAsync(id);
-                if (appointment != null)
+                var appointment = await _context.Appointments.Where(x => x.Id == id)
+                    .Include(x => x.Specialist).ThenInclude(x => x.Speciality)
+                    .Include(x => x.Specialist).ThenInclude(x => x.User).FirstOrDefaultAsync();
+                if (appointment?.Specialist?.User?.Password != null)
                 {
-                    appointment.Specialist = await _context.Specialists.Include("User").Where(x => x.Id == appointment.SpecialistId).FirstOrDefaultAsync();
-                    appointment.Specialist.Speciality = await _context.Specialities.FindAsync(appointment.Specialist.SpecialityId);
+                    appointment.Specialist.User.Password = "Ignore";
                 }
                 return Ok(new JsendSuccess(appointment));
             }
