@@ -28,10 +28,28 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Ratings
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetRatings() => Ok(new JsendSuccess(await _context.Ratings.ToListAsync()));
+        public async Task<ActionResult<IEnumerable<JsendWrapper>>> GetRatings()
+        {
+            var orders = await _context.Ratings.Include(x => x.Business).ToListAsync();
+            foreach (var order in orders)
+            {
+                order.User = await _context.Users.FindAsync(order.UserId);
+                order.User.Password = "Ignore";
+            }
+            return Ok(new JsendSuccess(orders));
+        }
 
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<JsendWrapper>> GetRatingByBusinessId(int businessId) => Ok(new JsendSuccess(await _context.Ratings.Where(x => x.BusinessId == businessId).ToListAsync()));
+        public async Task<ActionResult<JsendWrapper>> GetRatingByBusinessId(int businessId)
+        {
+            var orders = await _context.Ratings.Where(x => x.BusinessId == businessId).Include(x => x.Business).ToListAsync();
+            foreach (var order in orders)
+            {
+                order.User = await _context.Users.FindAsync(order.UserId);
+                order.User.Password = "Ignore";
+            }
+            return Ok(new JsendSuccess(orders));
+        }
 
         // POST: api/Ratings
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
