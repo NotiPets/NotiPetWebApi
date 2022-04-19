@@ -32,7 +32,6 @@ namespace Notipet.Domain
         public SizeId? Size { get; set; } = SizeId.Small;
         public bool Active { get; set; } = true;
 
-        [StringLength(2048)]
         public string? PictureUrl { get; set; }
 
         [StringLength(100)]
