@@ -42,7 +42,7 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
-                string error = $"{e.Message}\n{e.StackTrace}";
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
                     return StatusCode(500, new JsendError(error));
@@ -68,7 +68,7 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
-                string error = $"{e.Message}\n{e.StackTrace}";
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
                     return StatusCode(500, new JsendError(error));
@@ -90,13 +90,13 @@ namespace Notipet.Web.Controllers
                     .ThenInclude(x => x.Appointment)
                     .ThenInclude(x => x.Specialist)
                     .ThenInclude(x => x.Speciality)
-                    .Select(x => x.Orders.Select(x => x.Appointment))
+                    .SelectMany(x => x.Orders, (o, a) => a)
                     .ToListAsync();
                 return Ok(new JsendSuccess(appointments));
             }
             catch (Exception e)
             {
-                string error = $"{e.Message}\n{e.StackTrace}";
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
                     return StatusCode(500, new JsendError(error));
@@ -135,7 +135,7 @@ namespace Notipet.Web.Controllers
             }
             catch (Exception e)
             {
-                string error = $"{e.Message}\n{e.StackTrace}";
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
                 if (Methods.IsDevelopment())
                 {
                     return StatusCode(500, new JsendError(error));
