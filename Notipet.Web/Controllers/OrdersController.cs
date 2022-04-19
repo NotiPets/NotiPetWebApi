@@ -42,6 +42,7 @@ namespace Notipet.Web.Controllers
                 if (await _context.Orders.Where(x => x.Id == id).AnyAsync())
                 {
                     await UpdateOrderState(id, OrderStatusId.Cancelled);
+
                     return Ok(new JsendSuccess());
                 }
                 else
@@ -90,8 +91,11 @@ namespace Notipet.Web.Controllers
 
         private async Task UpdateOrderState(Guid id, OrderStatusId status)
         {
-            var order = await _context.Orders.FindAsync(id);
-            order.OrderStatus = OrderStatusId.Cancelled;
+            //var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders.Where(x => x.Id == id).Include("Appointment").FirstOrDefaultAsync();
+            order.OrderStatus = status;
+            if (status == OrderStatusId.Cancelled)
+                order.Appointment.AppointmentStatus = AppointmentStatusId.Cancelled;
             _context.Entry(order).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
