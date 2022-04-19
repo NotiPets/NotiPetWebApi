@@ -90,7 +90,7 @@ namespace Notipet.Web.Controllers
                     .ThenInclude(x => x.Appointment)
                     .ThenInclude(x => x.Specialist)
                     .ThenInclude(x => x.Speciality)
-                    .Select(x => x.Orders.Select(x => x.Appointment))
+                    .SelectMany(x => x.Orders, (o, a) => a)
                     .ToListAsync();
                 return Ok(new JsendSuccess(appointments));
             }
