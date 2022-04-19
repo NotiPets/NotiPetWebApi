@@ -25,7 +25,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<JsendWrapper>> AllOrders() => Ok(new JsendSuccess(await _context.Orders.Include(x => x.Appointment).ToListAsync()));
+        public async Task<ActionResult<JsendWrapper>> AllOrders() => Ok(new JsendSuccess(await _context.Orders.ToListAsync()));
 
         [HttpGet("ByUser/{userId}")]
         public async Task<ActionResult<JsendWrapper>> OrdersByUser(Guid userId) => Ok(new JsendSuccess(await _context.Orders.Where(x => x.UserId == userId).ToListAsync()));
