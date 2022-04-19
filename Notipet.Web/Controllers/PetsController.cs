@@ -123,6 +123,11 @@ namespace Notipet.Web.Controllers
                     return BadRequest();
                 }
 
+                pet.Created = pet.Created.ToUniversalTime();
+                pet.Birthdate = pet.Birthdate.ToUniversalTime();
+                var updateDate = (DateTime)pet.Updated;
+                pet.Updated = updateDate.ToUniversalTime();
+
                 _context.Entry(pet).State = EntityState.Modified;
 
                 try
