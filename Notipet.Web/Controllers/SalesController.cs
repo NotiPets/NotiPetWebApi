@@ -34,6 +34,7 @@ namespace Notipet.Web.Controllers
             {
                 return Ok(new JsendSuccess(await _context.Sales
                                 .Where(sale => sale.Orders.Where(order => order.UserId == userId).Any())
+                                .Include(sale => sale.Business)
                                 .Include(sale => sale.Orders)
                                 .ThenInclude(order => order.Appointment)
                                 .ToListAsync()));
