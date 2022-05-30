@@ -19,8 +19,8 @@ namespace Notipet.Web.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<LoginDto>> LogIn(LoginDto login)
+        [HttpPost("Web")]
+        public async Task<ActionResult<LoginDto>> LogInWeb(LoginDto login)
         {
             try
             {
@@ -28,7 +28,47 @@ namespace Notipet.Web.Controllers
                 User search = new User();
 
                 search = await _context.Users
-                    .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password); //Para verificar que user y password matchean
+                    .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password && m.Role != RoleId.Client); //Para verificar que user y password matchean
+
+                if (search != null)
+                {
+                    search.Password = null;
+                    return Ok(new JsendSuccess(new
+                    {
+                        jwt = GenerateJwtToken(search.Username),
+                        user = search,
+
+                    }));
+                }
+                else
+                {
+                    return Unauthorized(new JsendFail(new { credentials = "INVALID_CREDENTIALS" }));
+                }
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
+        }
+
+
+        [HttpPost("Mobile")]
+        public async Task<ActionResult<LoginDto>> LogInMobile(LoginDto login)
+        {
+            try
+            {
+                login.Password = Methods.ComputeSha256Hash(login.Password);
+                User search = new User();
+
+                search = await _context.Users
+                    .FirstOrDefaultAsync(m => m.Username == login.Username && m.Password == login.Password && m.Role == RoleId.Client); //Para verificar que user y password matchean
 
                 if (search != null)
                 {
