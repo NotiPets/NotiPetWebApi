@@ -19,10 +19,13 @@ namespace Notipet.Domain
         public string? VaccineName { get; set; }
 
         [Required]
-        [Column("BusinessId")]
-        public Business? Business { get; set; }
+        //[Column("BusinessId")]
+        public int BusinessId { get; set; }
+        [NotMapped]
+        public Business? business { get; set; }
 
-        public DateTime Date { get; set; } = DateTime.Now;
+
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
     }
 }

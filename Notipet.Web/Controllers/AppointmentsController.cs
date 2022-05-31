@@ -116,6 +116,10 @@ namespace Notipet.Web.Controllers
         {
             try
             {
+                if (await _context.Appointments.Where(x => x.Id == id).AnyAsync())
+                {
+
+                }
                 var appointment = appointmentDto.ConvertToType();
                 appointment.Id = id;
                 _context.Entry(appointment).State = EntityState.Modified;
