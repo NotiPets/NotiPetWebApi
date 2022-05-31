@@ -22,7 +22,7 @@ namespace Notipet.Domain
         [Column("BusinessId")]
         public Business? Business { get; set; }
 
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
     }
 }

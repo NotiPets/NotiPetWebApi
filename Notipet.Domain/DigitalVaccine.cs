@@ -10,22 +10,31 @@ namespace Notipet.Domain
     {
         public Guid Id { get; set; }
 
+
         [Required]
-        [Column("PetId")]
+        public Guid PetId { get; set; }
+
+        [NotMapped]
         public Pet? Pet { get; set; }
 
         [Required]
-        [Column("BusinessId")]
+        public int BusinessId { get; set; }
+
+        [NotMapped]
         public Business? Business { get; set; }
 
         [Required]
-        [Column("UserRoleId")]
+        public Guid UserId { get; set; }
+
+        [NotMapped]
         public User? User { get; set; }
 
         [Required]
-        [StringLength(30)]
-        public string? VaccineName { get; set; }
-        public DateTime Date { get; set; } = DateTime.Now;
+        public Guid VaccineId { get; set; }
+        [NotMapped]
+        public Vaccine? Vaccine { get; set; }
+
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
     }
 }

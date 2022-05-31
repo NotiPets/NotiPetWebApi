@@ -30,6 +30,7 @@ namespace Utilities
         }
         public static string GetConnectionString()
         {
+            return "Server=ec2-18-210-191-5.compute-1.amazonaws.com;Port=5432;Database=d8529mqgcms7kn;User Id=zaxudowomvitpc;Password=1ba3bb39eb6d7a174d881adcfaa00acca38a461d6fffb9923a891009cc9449f9;";
             if (Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING") != null)
             {
                 return Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING").ToString();
