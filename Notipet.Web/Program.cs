@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Notipet.Data;
+using Notipet.Web.SignalR;
 using Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 // Add services to the container.
 builder.Services.AddCors();
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -52,6 +54,8 @@ using (var context = new NotiPetBdContext(new DbContextOptionsBuilder<NotiPetBdC
 builder.Services.AddDbContext<NotiPetBdContext>(options => options.UseNpgsql(connectionString));
 
 var app = builder.Build();
+
+app.MapHub<InformHub>("/api/Appointments/Inform");
 
 app.MapGet("/", () => "All working!");
 
