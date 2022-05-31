@@ -38,5 +38,25 @@ namespace Notipet.Web.Controllers
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<Vaccine>>> GetById(Guid id)
+        {
+            try
+            {
+                var vaccine = await _context.Vaccine.Where(x => x.Id == id).FirstOrDefaultAsync();
+                if (vaccine == null) return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
+                return Ok(new JsendSuccess(vaccine));
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+        }
     }
 }
