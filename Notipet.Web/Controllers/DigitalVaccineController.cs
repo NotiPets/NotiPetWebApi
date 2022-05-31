@@ -25,14 +25,14 @@ namespace Notipet.Web.Controllers
         {
             try
             {
-                var vaccine = digitalVaccine.ConvertToType();        
+                var vaccine = digitalVaccine.ConvertToType();
                 _context.DigitalVaccines.Add(vaccine);
-                    await _context.SaveChangesAsync();
-            
-                    return Ok(new JsendSuccess(new
-                    {                       
-                        vaccine = vaccine
-                    }));
+                await _context.SaveChangesAsync();
+
+                return Ok(new JsendSuccess(new
+                {
+                    vaccine = vaccine
+                }));
             }
             catch (Exception e)
             {
@@ -51,7 +51,7 @@ namespace Notipet.Web.Controllers
         {
             try
             {
-                var vaccines = await _context.DigitalVaccines.Where(x => x.BusinessId == businessId).Include("Vaccine").ToListAsync();              
+                var vaccines = await _context.DigitalVaccines.Where(x => x.BusinessId == businessId).Include("Vaccine").ToListAsync();
                 return Ok(new JsendSuccess(vaccines));
             }
             catch (Exception e)
@@ -90,7 +90,7 @@ namespace Notipet.Web.Controllers
             try
             {
                 var vaccine = await _context.DigitalVaccines.Where(x => x.Id == id).Include("Vaccine").FirstOrDefaultAsync();
-                if(vaccine == null) return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
+                if (vaccine == null) return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
                 return Ok(new JsendSuccess(vaccine));
             }
             catch (Exception e)

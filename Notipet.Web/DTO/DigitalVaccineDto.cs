@@ -13,7 +13,7 @@ namespace Notipet.Web.DTO
             v.Id = new Guid();
             v.UserId = UserId;
             v.PetId = PetId;
-            v.BusinessId = BusinessId;  
+            v.BusinessId = BusinessId;
             v.VaccineId = VaccineId;
             v.Date = DateTime.UtcNow;
             return v;
