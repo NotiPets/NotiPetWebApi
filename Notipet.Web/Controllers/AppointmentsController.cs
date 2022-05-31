@@ -85,7 +85,7 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Appointments/5
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId)
+        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId, int itemCount, int page)
         {
             try
             {
@@ -96,8 +96,11 @@ namespace Notipet.Web.Controllers
                     .ThenInclude(x => x.Specialist)
                     .ThenInclude(x => x.Speciality)
                     .SelectMany(x => x.Orders, (o, a) => a)
+                    .OrderByDescending(x => x.Created)
                     .ToListAsync();
-                return Ok(new JsendSuccess(appointments));
+                var pagination = new PaginationInfo(itemCount, page, appointments.Count);
+                appointments = appointments.Skip(pagination.StartAt).Take(pagination.ItemCount).ToList();
+                return Ok(new JsendSuccess(new { pagination = pagination, appointments = appointments }));
             }
             catch (Exception e)
             {
