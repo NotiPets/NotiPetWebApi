@@ -9,6 +9,10 @@ namespace Utilities
 {
     public static class Constants
     {
+        public static class SignalR
+        {
+            public const string DefaultMessage = "Muerte a Xamarin! atte. Amel";
+        }
         public static class JsendStatus
         {
             public const string Success = "success";

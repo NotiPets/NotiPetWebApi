@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Notipet.Web.SignalR;
 using Notipet.Web.Validation;
 using Utilities;
 
@@ -20,10 +22,12 @@ namespace Notipet.Web.Controllers
     public class AppointmentsController : ValidationControllerBase
     {
         private readonly NotiPetBdContext _context;
+        private IHubContext<InformHub, IHubClient> _informHub;
 
-        public AppointmentsController(NotiPetBdContext context)
+        public AppointmentsController(NotiPetBdContext context, IHubContext<InformHub, IHubClient> hubContext)
         {
             _context = context;
+            _informHub = hubContext;
         }
 
         // GET: api/Appointments/5
@@ -118,6 +122,7 @@ namespace Notipet.Web.Controllers
 
                 try
                 {
+                    await _informHub.Clients.All.InformClient(Constants.SignalR.DefaultMessage);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
