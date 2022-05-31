@@ -158,6 +158,12 @@ namespace Notipet.Web.Controllers
             }
         }
 
+        [HttpGet("TestSignalR/{param}")]
+        public async Task<ActionResult<JsendWrapper>> TestSignalR(string param)
+        {
+            await _informHub.Clients.All.InformClient(param);
+            return Ok();
+        }
         private bool AppointmentExists(Guid id)
         {
             return _context.Appointments.Any(e => e.Id == id);
