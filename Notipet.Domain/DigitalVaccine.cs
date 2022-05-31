@@ -31,7 +31,7 @@ namespace Notipet.Domain
 
         [Required]
         public Guid VaccineId { get; set; }
-        [NotMapped]
+        
         public Vaccine? Vaccine { get; set; }
 
         public DateTime Date { get; set; } = DateTime.UtcNow;
