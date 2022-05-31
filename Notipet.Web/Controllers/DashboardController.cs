@@ -35,5 +35,18 @@ namespace Notipet.Web.Controllers
         [HttpGet("Last7DaysAppointments")]
         public async Task<ActionResult<JsendWrapper>> Last7DaysAppointments() => Ok(new JsendSuccess(await _context.Appointments.Where(x => x.Created >= DateTime.UtcNow.AddDays(-7)).ToListAsync()));
 
+        [HttpGet("DetailedLast7DaysAppointments/{businessId}")]
+        public async Task<ActionResult<JsendWrapper>> DetailedLast7DaysAppointments(int businessId)
+        {
+            var b = new List<Appointment>();
+            List<int> detail = new List<int>();
+            for (int i = 0; i >= -7; i--)
+            {
+                b = await _context.Appointments.Where(x => x.Created == DateTime.UtcNow.AddDays(i)).ToListAsync();
+                if (b != null) detail.Add(b.Count()); else detail.Add(0);
+            }
+            return Ok(new JsendSuccess(detail));
+        }
+
     }
 }
