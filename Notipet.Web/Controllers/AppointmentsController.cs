@@ -85,7 +85,7 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Appointments/5
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId, int itemCount, int page)
+        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId, int itemCount = 1, int page = 1)
         {
             try
             {

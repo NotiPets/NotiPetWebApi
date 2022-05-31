@@ -47,12 +47,20 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("ByBusinessId/{businessId}")]
-        public async Task<ActionResult<IEnumerable<DigitalVaccine>>> GetDigitalVaccineByBusinessId(int businessId)
+        public async Task<ActionResult<IEnumerable<DigitalVaccine>>> GetDigitalVaccineByBusinessId(int businessId, int itemCount = 1, int page = 1)
         {
             try
             {
-                var vaccines = await _context.DigitalVaccines.Where(x => x.BusinessId == businessId).Include("Vaccine").ToListAsync();
-                return Ok(new JsendSuccess(vaccines));
+                var vaccines = await _context.DigitalVaccines
+                    .Where(x => x.BusinessId == businessId)
+                    .Include(x => x.Vaccine)
+                    .Include(x => x.User)
+                    .Include(x => x.Pet)
+                    .OrderByDescending(x => x.Date)
+                    .ToListAsync();
+                var pagination = new PaginationInfo(itemCount, page, vaccines.Count);
+                vaccines = vaccines.Skip(pagination.StartAt).Take(pagination.ItemCount).ToList();
+                return Ok(new JsendSuccess(new { pagintaion = pagination, vaccines = vaccines }));
             }
             catch (Exception e)
             {
