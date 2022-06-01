@@ -85,7 +85,7 @@ namespace Notipet.Web.Controllers
 
         // GET: api/Appointments/5
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId, int itemCount, int page)
+        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByBusiness(int businessId, int? itemCount, int? page)
         {
             try
             {
@@ -98,9 +98,16 @@ namespace Notipet.Web.Controllers
                     .SelectMany(x => x.Orders, (o, a) => a)
                     .OrderByDescending(x => x.Created)
                     .ToListAsync();
-                var pagination = new PaginationInfo(itemCount, page, appointments.Count);
-                appointments = appointments.Skip(pagination.StartAt).Take(pagination.ItemCount).ToList();
-                return Ok(new JsendSuccess(new { pagination = pagination, appointments = appointments }));
+                if (itemCount.HasValue && page.HasValue)
+                {
+                    var pagination = new PaginationInfo(itemCount.Value, page.Value, appointments.Count);
+                    appointments = appointments.Skip(pagination.StartAt).Take(pagination.ItemCount).ToList();
+                    return Ok(new JsendSuccess(new { pagination = pagination, appointments = appointments }));
+                }
+                else
+                {
+                    return Ok(new JsendSuccess(new { appointments = appointments }));
+                }
             }
             catch (Exception e)
             {
@@ -119,18 +126,21 @@ namespace Notipet.Web.Controllers
         {
             try
             {
-                if (await _context.Appointments.Where(x => x.Id == id).AnyAsync())
+                if (await _context.Appointments.AnyAsync(x => x.Id == id))
                 {
-
+                    var appointment = appointmentDto.ConvertToType();
+                    appointment.Id = id;
+                    _context.Entry(appointment).State = EntityState.Modified;
                 }
-                var appointment = appointmentDto.ConvertToType();
-                appointment.Id = id;
-                _context.Entry(appointment).State = EntityState.Modified;
+                else
+                {
+                    return BadRequest(new JsendFail(new { appointment = "Appointment not found" }));
+                }
 
                 try
                 {
-                    await _informHub.Clients.All.InformClient(Constants.SignalR.DefaultMessage);
                     await _context.SaveChangesAsync();
+                    await _informHub.Clients.All.InformClient(Constants.SignalR.DefaultMessage);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
