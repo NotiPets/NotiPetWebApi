@@ -16,9 +16,11 @@
 
         public PaginationInfo(int itemCount, int page, int totalItems)
         {
+            itemCount = itemCount <= 0 ? 1 : itemCount;
+            page = page <= 0 ? 1 : page;
             ItemCount = itemCount;
             TotalItems = totalItems;
-            CurrentPage = (page < 0) ? 1 : page;
+            CurrentPage = page;
             TotalPages = (int)Math.Ceiling(totalItems / (double)itemCount);
             StartAt = (page - 1) * itemCount;
         }
