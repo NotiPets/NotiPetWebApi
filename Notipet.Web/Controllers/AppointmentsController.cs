@@ -119,18 +119,21 @@ namespace Notipet.Web.Controllers
         {
             try
             {
-                if (await _context.Appointments.Where(x => x.Id == id).AnyAsync())
+                if (await _context.Appointments.AnyAsync(x => x.Id == id))
                 {
-
+                    var appointment = appointmentDto.ConvertToType();
+                    appointment.Id = id;
+                    _context.Entry(appointment).State = EntityState.Modified;
                 }
-                var appointment = appointmentDto.ConvertToType();
-                appointment.Id = id;
-                _context.Entry(appointment).State = EntityState.Modified;
+                else
+                {
+                    return BadRequest(new JsendFail(new { appointment = "Appointment not found" }));
+                }
 
                 try
                 {
-                    await _informHub.Clients.All.InformClient(Constants.SignalR.DefaultMessage);
                     await _context.SaveChangesAsync();
+                    await _informHub.Clients.All.InformClient(Constants.SignalR.DefaultMessage);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
