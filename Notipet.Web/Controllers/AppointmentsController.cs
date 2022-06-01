@@ -98,7 +98,7 @@ namespace Notipet.Web.Controllers
                     .SelectMany(x => x.Orders, (o, a) => a)
                     .OrderByDescending(x => x.Created)
                     .ToListAsync();
-                if(itemCount.HasValue && page.HasValue)
+                if (itemCount.HasValue && page.HasValue)
                 {
                     var pagination = new PaginationInfo(itemCount.Value, page.Value, appointments.Count);
                     appointments = appointments.Skip(pagination.StartAt).Take(pagination.ItemCount).ToList();
