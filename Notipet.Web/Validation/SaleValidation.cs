@@ -67,6 +67,25 @@ namespace Notipet.Web.Validation
             return null;
         }
 
+        public async Task<ActionResult<JsendWrapper>?> ServiceOrderAppoitmentHaveSpecialist(SaleDto saleDto)
+        {
+            foreach (var order in saleDto.Orders.ToList())
+            {
+                var assetService = await _context.AssetsServices.FindAsync(order.AssetsServicesId);
+                // Si la order no es producto y tiene un appointment 
+                if (assetService?.AssetsServiceType == AssetsServiceTypeId.Service && order?.Appointment?.SpecialistId == null)
+                {
+                    return BadRequest(new JsendFail(new
+                    {
+                        // Cambiar a "Order must have a service if it includes an appointment"
+                        appointment = "The appointment must have a specialist",
+                        order = order
+                    }));
+                }
+            }
+            return null;
+        }
+
         public async Task<ActionResult<JsendWrapper>?> BusinessDoesExist(SaleDto saleDto)
         {
             if (await _context.Businesses.Where(x => x.Id == saleDto.BusinessId).AnyAsync())
