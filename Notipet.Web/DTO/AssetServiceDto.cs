@@ -11,6 +11,7 @@ namespace Notipet.Web.DTO
         public VendorId Vendor { get; set; }
         public AssetsServiceTypeId AssetsServiceType { get; set; }
         public int BusinessId { get; set; }
+        public string? PictureUrl { get; set; }
         public AssetsServices ConvertToType()
         {
             return new AssetsServices
@@ -21,7 +22,8 @@ namespace Notipet.Web.DTO
                 Quantity = Quantity,
                 Vendor = Vendor,
                 AssetsServiceType = AssetsServiceType,
-                BusinessId = BusinessId
+                BusinessId = BusinessId,
+                PictureUrl = PictureUrl
             };
         }
     }
