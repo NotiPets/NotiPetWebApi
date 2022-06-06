@@ -21,7 +21,7 @@ namespace Notipet.Web.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<JsendWrapper>> PostDigitalVaccione(DigitalVaccineDto digitalVaccine)
+        public async Task<ActionResult<JsendWrapper>> PostDigitalVaccine(DigitalVaccineDto digitalVaccine)
         {
             try
             {
@@ -47,12 +47,13 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("ByBusinessId/{businessId}")]
-        public async Task<ActionResult<IEnumerable<DigitalVaccine>>> GetDigitalVaccineByBusinessId(int businessId)
+        public async Task<ActionResult<JsendWrapper>> GetDigitalVaccineByBusinessId(int businessId, int itemCount, int page)
         {
             try
             {
                 var vaccines = await _context.DigitalVaccines.Where(x => x.BusinessId == businessId).Include("Vaccine").ToListAsync();
-                return Ok(new JsendSuccess(vaccines));
+                var pagination = new PaginationInfo(itemCount, page, vaccines.Count);
+                return Ok(new JsendSuccess(new { pagination = pagination, vaccines = vaccines }));
             }
             catch (Exception e)
             {
@@ -65,8 +66,9 @@ namespace Notipet.Web.Controllers
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
         }
+
         [HttpGet("ByPetId/{petId}")]
-        public async Task<ActionResult<IEnumerable<DigitalVaccine>>> GetDigitalVaccineByPetId(Guid petId)
+        public async Task<ActionResult<JsendWrapper>> GetDigitalVaccineByPetId(Guid petId)
         {
             try
             {
@@ -84,8 +86,9 @@ namespace Notipet.Web.Controllers
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
         }
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<DigitalVaccine>>> GetDigitalVaccineById(Guid id)
+        public async Task<ActionResult<JsendWrapper>> GetDigitalVaccineById(Guid id)
         {
             try
             {
@@ -104,6 +107,7 @@ namespace Notipet.Web.Controllers
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
         }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<JsendWrapper>> PutDigitalVaccine(Guid id, DigitalVaccineDto Dv)
         {

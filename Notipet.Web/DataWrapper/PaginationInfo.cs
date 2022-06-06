@@ -16,13 +16,11 @@
 
         public PaginationInfo(int itemCount, int page, int totalItems)
         {
-            itemCount = itemCount <= 0 ? 1 : itemCount;
-            page = page <= 0 ? 1 : page;
-            ItemCount = itemCount;
+            ItemCount = itemCount <= 0 ? 1 : itemCount;
+            CurrentPage = page <= 0 ? 1 : page;
             TotalItems = totalItems;
-            CurrentPage = page;
-            TotalPages = (int)Math.Ceiling(totalItems / (double)itemCount);
-            StartAt = (page - 1) * itemCount;
+            TotalPages = (int)Math.Ceiling(TotalItems / (double)ItemCount);
+            StartAt = (CurrentPage - 1) * ItemCount;
         }
     }
 }
