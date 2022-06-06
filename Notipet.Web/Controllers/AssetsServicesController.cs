@@ -57,7 +57,7 @@ namespace Notipet.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (! await _context.AssetsServices.AnyAsync(x => x.Id == id))
+                    if (!await _context.AssetsServices.AnyAsync(x => x.Id == id))
                     {
                         return BadRequest(new JsendFail(new { appointment = "AssetService not found" }));
                     }
