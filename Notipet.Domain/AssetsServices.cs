@@ -35,6 +35,8 @@ namespace Notipet.Domain
 
         [NotMapped]
         public Business? Business { get; set; }
+
+        public string? PictureUrl { get; set; }
         public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime? Updated { get; set; } = DateTime.UtcNow;
     }

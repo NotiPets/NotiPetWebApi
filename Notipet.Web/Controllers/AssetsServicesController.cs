@@ -27,15 +27,64 @@ namespace Notipet.Web.Controllers
 
         // GET: api/AssetsServices
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AssetsServices>>> GetAssetsServices() => await _context.AssetsServices.ToListAsync();
+        public async Task<ActionResult<JsendWrapper>> GetAssetsServices() => Ok(new JsendSuccess(await _context.AssetsServices.ToListAsync()));
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<JsendWrapper>> GetAssetsServicesById(int id) => Ok(new JsendSuccess(await _context.AssetsServices.FindAsync(id)));
 
         [HttpGet("ByBusiness/{businessId}")]
-        public async Task<ActionResult<IEnumerable<AssetsServices>>> GetAssetsServicesByBusinessId(int businessId) => await _context.AssetsServices.Where(x => x.BusinessId == businessId).ToListAsync();
+        public async Task<ActionResult<JsendWrapper>> GetAssetsServicesByBusinessId(int businessId) => Ok(new JsendSuccess(await _context.AssetsServices.Where(x => x.BusinessId == businessId).ToListAsync()));
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<JsendWrapper>> PutAssetsServices(int id, AssetServiceDto assetServiceDto)
+        {
+            try
+            {
+                if (await _context.AssetsServices.AnyAsync(x => x.Id == id))
+                {
+                    var assetsServices = assetServiceDto.ConvertToType();
+                    assetsServices.Id = id;
+                    _context.Entry(assetsServices).State = EntityState.Modified;
+                }
+                else
+                {
+                    return BadRequest(new JsendFail(new { appointment = "AssetService not found" }));
+                }
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (! await _context.AssetsServices.AnyAsync(x => x.Id == id))
+                    {
+                        return BadRequest(new JsendFail(new { appointment = "AssetService not found" }));
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return Ok(new JsendSuccess());
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+        }
 
         // POST: api/AssetsServices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<AssetsServices>> PostAssetsServices(AssetServiceDto assetsServicesDto)
+        public async Task<ActionResult<JsendWrapper>> PostAssetsServices(AssetServiceDto assetsServicesDto)
         {
             try
             {

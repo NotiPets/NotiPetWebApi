@@ -18,13 +18,17 @@ namespace Notipet.Web.Controllers
         {
             _context = context;
         }
+
         [HttpGet("ByBusinessId/{id}")]
-        public async Task<ActionResult<IEnumerable<Vaccine>>> GetByBusinessId(int id)
+        public async Task<ActionResult<JsendWrapper>> GetByBusinessId(int id)
         {
             try
             {
                 var vaccines = await _context.Vaccine.Where(x => x.BusinessId == id).ToListAsync();
-                if (vaccines == null) return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
+                if (vaccines == null)
+                {
+                    return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
+                }
                 return Ok(new JsendSuccess(vaccines));
             }
             catch (Exception e)
@@ -39,12 +43,15 @@ namespace Notipet.Web.Controllers
             }
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Vaccine>>> GetById(Guid id)
+        public async Task<ActionResult<JsendWrapper>> GetById(Guid id)
         {
             try
             {
                 var vaccine = await _context.Vaccine.Where(x => x.Id == id).FirstOrDefaultAsync();
-                if (vaccine == null) return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
+                if (vaccine == null)
+                {
+                    return NotFound(new JsendFail(new { DigitalVaccine = "NOT_FOUND" }));
+                }
                 return Ok(new JsendSuccess(vaccine));
             }
             catch (Exception e)
