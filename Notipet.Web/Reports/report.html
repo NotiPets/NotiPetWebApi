@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura</title>
+    <style>
+        body {
+            font-family: Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 22px;
+        }
+
+        .invoice {
+            width: 700px;
+            margin: 0 auto;
+        }
+
+        .invoice__title {
+            text-align: center;
+        }
+
+        .invoice__info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-bottom: 1px solid black;
+        }
+
+        .invoice__info-title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <h1 class="invoice__title">¡Transacción realizada!</h1>
+        <div class="invoice__info">
+            <span class="invoice__info-title">No. de Transacción</span>
+            <span>5</span>
+        </div>
+        <div class="invoice__info">
+            <span class="invoice__info-title">Fecha de la transacción</span>
+            <span>20/04/2022</span>
+        </div>
+        <div class="invoice__info">
+            <span class="invoice__info-title">Cuenta de origen</span>
+            <span>132142</span>
+        </div>
+        <div class="invoice__info">
+            <span class="invoice__info-title">Cuenta destino</span>
+            <span>22345</span>
+        </div>
+        <div class="invoice__info">
+            <span class="invoice__info-title">Monto</span>
+            <span>RD$12,234.12</span>
+        </div>
+        <div class="invoice__info">
+            <span class="invoice__info-title">Tipo de transacción</span>
+            <span>Transferencia</span>
+        </div>
+        <div class="invoice__info">
+            <span class="invoice__info-title">Fecha de generación</span>
+            <span>20/04/2022 2:17:08 PM</span>
+        </div>
+    </div>
+</body>
+</html>

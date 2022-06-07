@@ -26,6 +26,9 @@ namespace Notipet.Domain
         public VendorId Vendor { get; set; }
         public bool Active { get; set; } = true;
 
+        [StringLength(100)]
+        public string? Category { get; set; }
+
         [Required]
         [Column("AssetsServiceTypeId")]
         public AssetsServiceTypeId AssetsServiceType { get; set; }
