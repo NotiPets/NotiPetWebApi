@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
+using Notipet.Web.Services;
 using Utilities;
 
 namespace Notipet.Web.Controllers
@@ -14,9 +16,11 @@ namespace Notipet.Web.Controllers
     public class DigitalVaccineController : ControllerBase
     {
         private readonly NotiPetBdContext _context;
-        public DigitalVaccineController(NotiPetBdContext context)
+        private readonly IReportService _reportService;
+        public DigitalVaccineController(NotiPetBdContext context, IConverter converter)
         {
             _context = context;
+            _reportService = new ReportService(converter);
         }
 
 
@@ -139,6 +143,13 @@ namespace Notipet.Web.Controllers
                 Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
+        }
+
+        [HttpGet("Pdf/{id}")]
+        public async Task<IActionResult> CreateVaccinePdf(Guid id)
+        {
+            var pdfFile = _reportService.GeneratePdfReport();
+            return File(pdfFile, "application/octet-stream", "SimplePdf.pdf");
         }
     }
 }
