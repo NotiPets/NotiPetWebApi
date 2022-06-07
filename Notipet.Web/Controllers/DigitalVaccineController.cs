@@ -55,8 +55,9 @@ namespace Notipet.Web.Controllers
         {
             try
             {
-                var vaccines = await _context.DigitalVaccines.Where(x => x.BusinessId == businessId).Include("Vaccine").ToListAsync();
+                var vaccines = await _context.DigitalVaccines.Where(x => x.BusinessId == businessId).Include("Vaccine").OrderByDescending(x => x.Date).ToListAsync();
                 var pagination = new PaginationInfo(itemCount, page, vaccines.Count);
+                vaccines = vaccines.Skip(pagination.StartAt).Take(pagination.ItemCount).ToList();
                 return Ok(new JsendSuccess(new { pagination = pagination, vaccines = vaccines }));
             }
             catch (Exception e)
