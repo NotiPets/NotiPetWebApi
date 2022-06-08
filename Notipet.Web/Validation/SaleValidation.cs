@@ -67,6 +67,36 @@ namespace Notipet.Web.Validation
             return null;
         }
 
+        public async Task<ActionResult<JsendWrapper>?> AppointmentDateIsDuringWorkingTime(SaleDto saleDto)
+        {
+            foreach(var order in saleDto.Orders.ToList())
+            {
+                if (order.Appointment != null && !Enumerable.Range(8,10).ToList().Contains(order.Appointment.Date.Hour))
+                {
+                    return NotFound(new JsendFail(new { appointment = "Apointment date must be during working hours (8-17)" }));
+                }
+            }
+            return null;
+            
+        }
+
+        public async Task<ActionResult<JsendWrapper>?> AppointmentDateNotTaken(SaleDto saleDto)
+        {
+            foreach (var order in saleDto.Orders.ToList())
+            {
+                if (order.Appointment != null && await _context.Appointments
+                    .Where(x => x.SpecialistId == order.Appointment.SpecialistId && x.Date.Date == order.Appointment.Date.Date && x.Date.Hour == order.Appointment.Date.Hour)
+                    .AnyAsync())
+                {
+                    return NotFound(new JsendFail(new 
+                    { 
+                        appointment = "Apointment date taken"
+                    }));
+                }
+            }
+            return null;
+
+        }
 
         public async Task<ActionResult<JsendWrapper>?> BusinessDoesExist(SaleDto saleDto)
         {
