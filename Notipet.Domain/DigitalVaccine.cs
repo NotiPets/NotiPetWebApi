@@ -13,8 +13,6 @@ namespace Notipet.Domain
 
         [Required]
         public Guid PetId { get; set; }
-
-        [NotMapped]
         public Pet? Pet { get; set; }
 
         [Required]
@@ -25,8 +23,6 @@ namespace Notipet.Domain
 
         [Required]
         public Guid UserId { get; set; }
-
-        [NotMapped]
         public User? User { get; set; }
 
         [Required]
