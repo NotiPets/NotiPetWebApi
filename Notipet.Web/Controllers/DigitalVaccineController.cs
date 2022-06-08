@@ -1,12 +1,10 @@
-﻿using DinkToPdf.Contracts;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
 using Notipet.Web.DataWrapper;
 using Notipet.Web.DTO;
-using Notipet.Web.Services;
 using Utilities;
 
 namespace Notipet.Web.Controllers
@@ -16,11 +14,11 @@ namespace Notipet.Web.Controllers
     public class DigitalVaccineController : ControllerBase
     {
         private readonly NotiPetBdContext _context;
-        private readonly IReportService _reportService;
-        public DigitalVaccineController(NotiPetBdContext context, IConverter converter)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public DigitalVaccineController(NotiPetBdContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
-            _reportService = new ReportService(converter);
+            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -137,7 +135,7 @@ namespace Notipet.Web.Controllers
                 }
                 else
                 {
-                    return NotFound(new JsendFail(new { order = "order not found" }));
+                    return NotFound(new JsendFail(new { order = "DigitalVaccine not found" }));
                 }
             }
             catch (Exception e)
@@ -155,8 +153,43 @@ namespace Notipet.Web.Controllers
         [HttpGet("Pdf/{id}")]
         public async Task<IActionResult> CreateVaccinePdf(Guid id)
         {
-            var pdfFile = _reportService.GeneratePdfReport();
-            return File(pdfFile, "application/octet-stream", "SimplePdf.pdf");
+            try
+            {
+                var vaccine = await _context.DigitalVaccines
+                .Where(x => x.Id == id)
+                .Include(x => x.Vaccine)
+                .Include(x => x.Pet)
+                .ThenInclude(x => x.User)
+                .FirstOrDefaultAsync();
+                if (vaccine == null)
+                {
+                    return NotFound(new JsendFail(new { order = "DigitalVaccine not found" }));
+                }
+                else
+                {
+                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
+                    html += $"<p>Pet: {vaccine.Pet.Name}</p>";
+                    html += $"<p>User: {vaccine.Pet.User.Names}</p>";
+                    var httpClient = _httpClientFactory.CreateClient();
+                    var formContent = new FormUrlEncodedContent(new[]
+                    {
+                    new KeyValuePair<string, string>("document_html", html)
+                });
+                    var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
+                    var response = await request.Content.ReadAsByteArrayAsync();
+                    return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
+                }
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
         }
     }
 }
