@@ -37,6 +37,7 @@ namespace Notipet.Data
         public virtual DbSet<Specialist> Specialists { get; set; }
         public virtual DbSet<Speciality> Specialities { get; set; }
         public virtual DbSet<Vaccine> Vaccine { get; set; }
+        public virtual DbSet<Ticket> Ticket { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
