@@ -15,6 +15,8 @@ namespace Notipet.Web.DTO
         public float? Latitude { get; set; }
         public float? Longitude { get; set; }
         public string? PictureUrl { get; set; }
+        public DateTime OpeningTime { get; set; }
+        public DateTime ClosingTime { get; set; }
 
         public Business ConvertToType()
         {
@@ -30,7 +32,9 @@ namespace Notipet.Web.DTO
                 Province = Province,
                 Latitude = Latitude,
                 Longitude = Longitude,
-                PictureUrl = PictureUrl
+                PictureUrl = PictureUrl,
+                OpeningTime = OpeningTime,
+                ClosingTime = ClosingTime
             };
         }
     }
