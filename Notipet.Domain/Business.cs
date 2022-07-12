@@ -52,5 +52,11 @@ namespace Notipet.Domain
 
         [StringLength(5000)]
         public string? Comment { get; set; } = null;
+
+        [Required]
+        public DateTime OpeningTime { get; set; }
+
+        [Required]
+        public DateTime ClosingTime { get; set; }
     }
 }
