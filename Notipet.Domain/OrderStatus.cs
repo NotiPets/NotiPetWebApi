@@ -11,7 +11,8 @@ namespace Notipet.Domain
         Created,
         Updated,
         Completed,
-        Cancelled
+        Cancelled,
+        InProgress
     }
 
     // This class just exists to create an equivalent table to the above enum

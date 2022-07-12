@@ -13,6 +13,7 @@ namespace Notipet.Domain
         Cancelled,
         Completed,
         Denied,
+        InProgress,
 
     }
 
