@@ -1,4 +1,6 @@
 ﻿#nullable disable
+using System.Net;
+using System.Net.Mail;
 using Microsoft.EntityFrameworkCore;
 using Notipet.Data;
 using Notipet.Domain;
@@ -88,6 +90,51 @@ namespace Notipet.Web.Controllers
                 Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
+        }
+
+        [HttpGet("ForgotPassword/{email}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> ForgotPassword(string email)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+                if (user != null)
+                {
+
+                    var code = new Random().Next(100000, 999999);
+
+                    var subject = "Código de restablecimiento de contraseña";
+                    var body = $"Tu código es: {code}";
+
+                    var client = new SmtpClient("smtp.mailtrap.io", 2525)
+                    {
+                        Credentials = new NetworkCredential("26fd3a3582c505", "95226ba38a1b69"),
+                        EnableSsl = true
+                    };
+
+                    client.Send("from@example.com", email, subject, body);
+
+                    user.ValidationCode = code;
+                    await _context.SaveChangesAsync();
+                    return Ok(new JsendSuccess(null));
+
+                }
+                else
+                {
+                    return NotFound(new JsendFail(new { email = "EMAIL_DOESN'T_EXISTS" }));
+                }
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
         }
     }
 }
