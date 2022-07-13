@@ -156,6 +156,7 @@ namespace Notipet.Web.Controllers
                     if (user != null)
                     {
                         user.ValidationCode = 0;
+                        _context.Users.Update(user);
                         await _context.SaveChangesAsync();
                         user.Password = null;
                         return Ok(new JsendSuccess(user));
@@ -176,7 +177,7 @@ namespace Notipet.Web.Controllers
 
         }
 
-        [HttpPut("userId")]
+        [HttpPut("UpdatePassword/userId")]
         public async Task<IActionResult> PutUserPassword(Guid userId, string newPassword)
         {
             try
@@ -188,6 +189,7 @@ namespace Notipet.Web.Controllers
                     return NotFound(new JsendFail(new { notFound = "User not found" }));
                 }
                 user.Password = Methods.ComputeSha256Hash(newPassword);
+                _context.Users.Update(user);
                 await _context.SaveChangesAsync();
                 return Ok(new JsendSuccess(null));
             }
