@@ -167,105 +167,23 @@ namespace Notipet.Web.Controllers
                 }
                 else
                 {
-                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
+                    IronPdf.Installation.LinuxAndDockerDependenciesAutoConfig = false;
+                    IronPdf.Installation.ChromeGpuMode = IronPdf.Engines.Chrome.ChromeGpuModes.Disabled;
+                    IronPdf.Installation.Initialize();
+                    var Renderer = new IronPdf.ChromePdfRenderer();
+                    var pdf = Renderer.RenderHtmlAsPdf("<h1>Hello World</h1>");
+                    return File(pdf.BinaryData, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
+                    /*string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
                     html += $"<p>Pet: {vaccine.Pet.Name}</p>";
                     html += $"<p>User: {vaccine.Pet.User.Names}</p>";
                     var httpClient = _httpClientFactory.CreateClient();
                     var formContent = new FormUrlEncodedContent(new[]
                     {
-                    new KeyValuePair<string, string>("document_html", html)
-                });
+                        new KeyValuePair<string, string>("document_html", html)
+                    });
                     var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
                     var response = await request.Content.ReadAsByteArrayAsync();
-                    return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
-                }
-            }
-            catch (Exception e)
-            {
-                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
-                if (Methods.IsDevelopment())
-                {
-                    return StatusCode(500, new JsendError(error));
-                }
-                Console.WriteLine(error);
-                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
-            }
-        }
-
-        [HttpGet("PdfByteArray1/{id}")]
-        public async Task<IActionResult> CreateVaccinePdfAsByteArray1(Guid id)
-        {
-            try
-            {
-                var vaccine = await _context.DigitalVaccines
-                .Where(x => x.Id == id)
-                .Include(x => x.Vaccine)
-                .Include(x => x.Pet)
-                .ThenInclude(x => x.User)
-                .FirstOrDefaultAsync();
-                if (vaccine == null)
-                {
-                    return NotFound(new JsendFail(new { order = "DigitalVaccine not found" }));
-                }
-                else
-                {
-                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
-                    html += $"<p>Pet: {vaccine.Pet.Name}</p>";
-                    html += $"<p>User: {vaccine.Pet.User.Names}</p>";
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var formContent = new FormUrlEncodedContent(new[]
-                    {
-                    new KeyValuePair<string, string>("document_html", html)
-                });
-                    var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
-                    var response = await request.Content.ReadAsByteArrayAsync();
-                    return new FileContentResult(response, "application/pdf")
-                    {
-                        FileDownloadName = $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf"
-                    };
-                    // return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
-                }
-            }
-            catch (Exception e)
-            {
-                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
-                if (Methods.IsDevelopment())
-                {
-                    return StatusCode(500, new JsendError(error));
-                }
-                Console.WriteLine(error);
-                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
-            }
-        }
-
-        [HttpGet("PdfByteArray2/{id}")]
-        public async Task<ActionResult<JsendWrapper>> CreateVaccinePdfAsByteArray2(Guid id)
-        {
-            try
-            {
-                var vaccine = await _context.DigitalVaccines
-                .Where(x => x.Id == id)
-                .Include(x => x.Vaccine)
-                .Include(x => x.Pet)
-                .ThenInclude(x => x.User)
-                .FirstOrDefaultAsync();
-                if (vaccine == null)
-                {
-                    return NotFound(new JsendFail(new { order = "DigitalVaccine not found" }));
-                }
-                else
-                {
-                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
-                    html += $"<p>Pet: {vaccine.Pet.Name}</p>";
-                    html += $"<p>User: {vaccine.Pet.User.Names}</p>";
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var formContent = new FormUrlEncodedContent(new[]
-                    {
-                    new KeyValuePair<string, string>("document_html", html)
-                });
-                    var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
-                    var response = await request.Content.ReadAsByteArrayAsync();
-                    return new JsendSuccess(new { response = response });
+                    return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");*/
                 }
             }
             catch (Exception e)
