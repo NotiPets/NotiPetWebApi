@@ -167,63 +167,17 @@ namespace Notipet.Web.Controllers
                 }
                 else
                 {
-                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
-                    html += $"<p>Pet: {vaccine.Pet.Name}</p>";
-                    html += $"<p>User: {vaccine.Pet.User.Names}</p>";
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var formContent = new FormUrlEncodedContent(new[]
-                    {
-                    new KeyValuePair<string, string>("document_html", html)
-                });
-                    var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
-                    var response = await request.Content.ReadAsByteArrayAsync();
-                    return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
-                }
-            }
-            catch (Exception e)
-            {
-                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
-                if (Methods.IsDevelopment())
-                {
-                    return StatusCode(500, new JsendError(error));
-                }
-                Console.WriteLine(error);
-                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
-            }
-        }
-
-        [HttpGet("PdfByteArray1/{id}")]
-        public async Task<IActionResult> CreateVaccinePdfAsByteArray1(Guid id)
-        {
-            try
-            {
-                var vaccine = await _context.DigitalVaccines
-                .Where(x => x.Id == id)
-                .Include(x => x.Vaccine)
-                .Include(x => x.Pet)
-                .ThenInclude(x => x.User)
-                .FirstOrDefaultAsync();
-                if (vaccine == null)
-                {
-                    return NotFound(new JsendFail(new { order = "DigitalVaccine not found" }));
-                }
-                else
-                {
-                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
-                    html += $"<p>Pet: {vaccine.Pet.Name}</p>";
-                    html += $"<p>User: {vaccine.Pet.User.Names}</p>";
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var formContent = new FormUrlEncodedContent(new[]
-                    {
-                    new KeyValuePair<string, string>("document_html", html)
-                });
-                    var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
-                    var response = await request.Content.ReadAsByteArrayAsync();
-                    return new FileContentResult(response, "application/pdf")
-                    {
-                        FileDownloadName = $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf"
-                    };
-                    // return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
+                    IronPdf.Installation.LinuxAndDockerDependenciesAutoConfig = false;
+                    IronPdf.Installation.ChromeGpuMode = IronPdf.Engines.Chrome.ChromeGpuModes.Disabled;
+                    IronPdf.Installation.Initialize();
+                    var Renderer = new IronPdf.ChromePdfRenderer();
+                    var reportTempalte = ReportTemplate();
+                    reportTempalte = reportTempalte.Replace("_date", vaccine.Date.ToString());
+                    reportTempalte = reportTempalte.Replace("_vaccine", vaccine.Vaccine.VaccineName);
+                    reportTempalte = reportTempalte.Replace("_pet", vaccine.Pet.Name);
+                    reportTempalte = reportTempalte.Replace("_user", vaccine.Pet.User.Names);
+                    var pdf = Renderer.RenderHtmlAsPdf(reportTempalte);
+                    return File(pdf.BinaryData, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
                 }
             }
             catch (Exception e)
@@ -239,7 +193,7 @@ namespace Notipet.Web.Controllers
         }
 
         [HttpGet("PdfByteArray2/{id}")]
-        public async Task<ActionResult<JsendWrapper>> CreateVaccinePdfAsByteArray2(Guid id)
+        public async Task<ActionResult<JsendWrapper>> CreateVaccinePdfAsByteArray(Guid id)
         {
             try
             {
@@ -255,17 +209,17 @@ namespace Notipet.Web.Controllers
                 }
                 else
                 {
-                    string html = $"<p>Vaccine name: {vaccine.Vaccine.VaccineName}</p>";
-                    html += $"<p>Pet: {vaccine.Pet.Name}</p>";
-                    html += $"<p>User: {vaccine.Pet.User.Names}</p>";
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var formContent = new FormUrlEncodedContent(new[]
-                    {
-                    new KeyValuePair<string, string>("document_html", html)
-                });
-                    var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
-                    var response = await request.Content.ReadAsByteArrayAsync();
-                    return new JsendSuccess(new { response = response });
+                    IronPdf.Installation.LinuxAndDockerDependenciesAutoConfig = false;
+                    IronPdf.Installation.ChromeGpuMode = IronPdf.Engines.Chrome.ChromeGpuModes.Disabled;
+                    IronPdf.Installation.Initialize();
+                    var Renderer = new IronPdf.ChromePdfRenderer();
+                    var reportTempalte = ReportTemplate();
+                    reportTempalte = reportTempalte.Replace("_date", vaccine.Date.ToString());
+                    reportTempalte = reportTempalte.Replace("_vaccine", vaccine.Vaccine.VaccineName);
+                    reportTempalte = reportTempalte.Replace("_pet", vaccine.Pet.Name);
+                    reportTempalte = reportTempalte.Replace("_user", vaccine.Pet.User.Names);
+                    var pdf = Renderer.RenderHtmlAsPdf(reportTempalte);
+                    return new JsendSuccess(new { response = pdf.BinaryData });
                 }
             }
             catch (Exception e)
@@ -278,6 +232,12 @@ namespace Notipet.Web.Controllers
                 Console.WriteLine(error);
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
+        }
+
+        private string ReportTemplate()
+        {
+            string report = "<!DOCTYPE html><html lang='en'><head> <meta charset='UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <title>Reporte de Vacuna</title> <style> body { font-family: Calibri, 'Trebuchet MS', sans-serif; font-size: 22px; } .invoice { width: 700px; margin: 0 auto; } .invoice__title { text-align: center; } .invoice__info { display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; border-bottom: 1px solid black; } .invoice__info-title { font-weight: bold; } </style></head><body> <div class='invoice'> <h1 class='invoice__title'>Reporte de Vacuna</h1> <div class='invoice__info'> <span class='invoice__info-title'>Vacuna Aplicada</span> <span>_vaccine</span> </div> <div class='invoice__info'> <span class='invoice__info-title'>Fecha de aplicación</span> <span>_date</span> </div> <div class='invoice__info'> <span class='invoice__info-title'>Mascota</span> <span>_pet</span> </div> <div class='invoice__info'> <span class='invoice__info-title'>Cliente</span> <span>_user</span> </div> </div></body></html>";
+            return report;
         }
     }
 }
