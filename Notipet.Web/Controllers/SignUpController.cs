@@ -112,7 +112,7 @@ namespace Notipet.Web.Controllers
                         EnableSsl = true
                     };
 
-                    client.Send("from@example.com", email, subject, body);
+                    client.Send("service@notipet.com", email, subject, body);
 
                     user.ValidationCode = code;
                     await _context.SaveChangesAsync();
