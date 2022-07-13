@@ -82,6 +82,30 @@ namespace Notipet.Web.Controllers
                 return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
             }
         }
+        [HttpGet("ByStatus/{userId}/{statusId}")]
+        public async Task<ActionResult<JsendWrapper>> GetAppointmentsByStatus(Guid userId, int statusId)
+        {
+            try
+            {
+                var appointments = await _context.Orders
+                    .Where(x => x.AssetsServices.AssetsServiceType == AssetsServiceTypeId.Service && x.UserId == userId && ((int)x.Appointment.AppointmentStatus) == statusId)
+                    .Include(x => x.Appointment.Specialist)
+                    .ThenInclude(x => x.Speciality)
+                    .Select(x => x.Appointment)
+                    .ToListAsync();
+                return Ok(new JsendSuccess(appointments));
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+        }
 
         // GET: api/Appointments/5
         [HttpGet("ByBusiness/{businessId}")]
