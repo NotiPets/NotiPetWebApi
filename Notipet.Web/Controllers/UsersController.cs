@@ -145,6 +145,65 @@ namespace Notipet.Web.Controllers
 
         }
 
+        [HttpGet("ValidateCode/{code}")]
+        public async Task<ActionResult<IEnumerable<Specialist>>> ValidateCode(int code)
+        {
+            try
+            {
+                if (code != 0)
+                {
+                    var user = await _context.Users.FirstOrDefaultAsync(x => x.ValidationCode == code);
+                    if (user != null)
+                    {
+                        user.ValidationCode = 0;
+                        await _context.SaveChangesAsync();
+                        user.Password = null;
+                        return Ok(new JsendSuccess(user));
+                    }
+                }
+                return NotFound(new JsendFail(new { code = "VALIDATION_CODE_DOESN'T_EXISTS" }));
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
+        }
+
+        [HttpPut("userId")]
+        public async Task<IActionResult> PutUserPassword(Guid userId, string newPassword)
+        {
+            try
+            {
+                // This needs to reject the password in the object (prolly new DTO)
+                var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+                if (!UserExists(userId))
+                {
+                    return NotFound(new JsendFail(new { notFound = "User not found" }));
+                }
+                user.Password = Methods.ComputeSha256Hash(newPassword);
+                await _context.SaveChangesAsync();
+                return Ok(new JsendSuccess(null));
+            }
+            catch (Exception e)
+            {
+                string error = $"{e.Message}\n{e.InnerException}\n{e.StackTrace}";
+                if (Methods.IsDevelopment())
+                {
+                    return StatusCode(500, new JsendError(error));
+                }
+                Console.WriteLine(error);
+                return StatusCode(500, new JsendError(Constants.ControllerTextResponse.Error));
+            }
+
+        }
+
         [HttpDelete()]
         public async Task<IActionResult> DeleteUser(Guid userId)
         {
