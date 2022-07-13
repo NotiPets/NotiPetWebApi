@@ -220,7 +220,7 @@ namespace Notipet.Web.Controllers
                     var request = await httpClient.PostAsync("http://api.pdflayer.com/api/convert?access_key=42aed79c0552c000e7832e6b324a53be&test=1", formContent);
                     var response = await request.Content.ReadAsByteArrayAsync();
                     return new FileContentResult(response, "application/pdf")
-                    { 
+                    {
                         FileDownloadName = $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf"
                     };
                     // return File(response, "application/pdf", $"Vaccine {vaccine.Vaccine.VaccineName} - {vaccine.Pet.Name} - {vaccine.Pet.User.Names}.pdf");
